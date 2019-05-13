@@ -1,0 +1,24 @@
+
+.file-preview-image {
+    font: 40px Impact, Charcoal, sans-serif;
+    color: #008000;
+    height: 250px;
+    width: 540px;
+    border-radius: 5px;
+}
+
+.file-preview-video {
+    font: 40px Impact, Charcoal, sans-serif;
+    color: #008000;
+    height: 250px;
+    width: 540px;
+    border-radius: 5px;
+}
+
+.file-preview-audio {
+    font: 40px Impact, Charcoal, sans-serif;
+    color: #008000;
+    height: 30px;
+    width: 540px;
+    border-radius: 5px;
+}

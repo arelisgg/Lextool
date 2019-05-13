@@ -1,0 +1,114 @@
+{
+  "coverage": "71.49%",
+  "expectCount": 207,
+  "actualCount": 148,
+  "files": {
+    "js/BaseTree.js": {
+      "expectCount": 124,
+      "actualCount": 90,
+      "undocumentLines": [
+        50,
+        88,
+        89,
+        92,
+        93,
+        94,
+        95,
+        118,
+        122,
+        123,
+        126,
+        127,
+        128,
+        290,
+        328,
+        387,
+        407,
+        429,
+        451,
+        473,
+        497,
+        521,
+        548,
+        569,
+        589,
+        609,
+        647,
+        868,
+        888,
+        909,
+        1049,
+        1056,
+        1059,
+        1563
+      ]
+    },
+    "js/BoxedNodeSettings.js": {
+      "expectCount": 20,
+      "actualCount": 13,
+      "undocumentLines": [
+        3,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    },
+    "js/BoxedTree.js": {
+      "expectCount": 20,
+      "actualCount": 16,
+      "undocumentLines": [
+        6,
+        20,
+        21,
+        22
+      ]
+    },
+    "js/CircleNodeSettings.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        3
+      ]
+    },
+    "js/CircleTree.js": {
+      "expectCount": 16,
+      "actualCount": 13,
+      "undocumentLines": [
+        5,
+        18,
+        19
+      ]
+    },
+    "js/CustomD3.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        13
+      ]
+    },
+    "js/LoadOnDemandSettings.js": {
+      "expectCount": 12,
+      "actualCount": 8,
+      "undocumentLines": [
+        1,
+        16,
+        17,
+        18
+      ]
+    },
+    "js/NodeSettings.js": {
+      "expectCount": 13,
+      "actualCount": 8,
+      "undocumentLines": [
+        1,
+        15,
+        16,
+        17,
+        18
+      ]
+    }
+  }
+}

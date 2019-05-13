@@ -1,0 +1,34 @@
+
+.file-footer-buttons{
+
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
+
+.photoBtnUpd {
+    font-size: 15px;
+    font-weight: 400;
+    text-align: center;
+    padding: 5px 15px;
+    display: table;
+    margin: auto;
+    border: solid 1px;
+    border-radius: 10px;
+    background-color: #f91919;
+    color: white;
+// box-shadow: 0 px 14 px 26 px - 12 px rgba(0, 0, 0, 0.42), 0 px 4 px 23 px 0 px rgba(0, 0, 0, 0.12), 0 px 8 px 10 px - 5 px rgba(156, 39, 176, 0.2);
+    transition: all 0.2s ease-in-out 0s;
+}
+
+.photoBtnUpd, .photoBtn:hover {
+    cursor: pointer;
+}
+
+.file-preview-image {
+    font: 40px Impact, Charcoal, sans-serif;
+    color: #008000;
+    height: 223px;
+    width: 100%;
+    border-radius: 5px;
+}
