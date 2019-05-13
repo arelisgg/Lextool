@@ -29,10 +29,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'myprofile', 'login', 'control', 'request-password-reset', 'singup'],
+                'only' => ['logout', 'myprofile', 'login', 'control', 'request-password-reset', 'reset-password', 'singup'],
                 'rules' => [
                     [
-                        'actions' => ['login', 'request-password-reset', 'singup'],
+                        'actions' => ['login', 'request-password-reset', 'reset-password', 'singup'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
