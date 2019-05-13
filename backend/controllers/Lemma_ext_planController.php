@@ -21,6 +21,7 @@ use yii\filters\VerbFilter;
  */
 class Lemma_ext_planController extends Controller
 {
+    public $enableCsrfValidation = false;
     /**
      * {@inheritdoc}
      */
@@ -42,7 +43,7 @@ class Lemma_ext_planController extends Controller
      */
     public function actionIndex($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+//        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $searchModel = new LemmaExtPlanSearch();
             $searchModel->id_project = $id_project;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -52,8 +53,8 @@ class Lemma_ext_planController extends Controller
                 'dataProvider' => $dataProvider,
                 'model' => $this->findModelProject($id_project),
             ]);
-        } else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        } else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -82,7 +83,7 @@ class Lemma_ext_planController extends Controller
      */
     public function actionCreate($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+//        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $model = new LemmaExtPlan();
             $model->id_project = $id_project;
 
@@ -101,8 +102,8 @@ class Lemma_ext_planController extends Controller
                     'model' => $model,
                 ]);
             }
-        } else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        } else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
 

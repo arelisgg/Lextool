@@ -49,7 +49,7 @@ class Document_ext_taskController extends Controller
 
         $ext_plan = DocExtPlan::findOne($id_ext_plan);
 
-        if (User::userCanExtractionDocument($ext_plan->id_project)) {
+//        if (User::userCanExtractionDocument($ext_plan->id_project)) {
             $searchModel = new DocumentSearch();
             $searchModel->id_doc_type = $ext_plan->id_doc_type;
             $searchModel->id_doc_ext_plan = $ext_plan->id_doc_ext_plan;
@@ -67,8 +67,8 @@ class Document_ext_taskController extends Controller
                 'dataProvider' => $dataProvider,
                 'project' => $project
             ]);
-        }else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        }else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**

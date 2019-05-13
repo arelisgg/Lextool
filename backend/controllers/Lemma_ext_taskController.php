@@ -66,7 +66,7 @@ class Lemma_ext_taskController extends Controller
 
         $project = Project::findOne(['id_project' => $ext_plan->id_project]);
 
-        if (User::userCanExtractionLemma($project->id_project)) {
+//        if (User::userCanExtractionLemma($project->id_project)) {
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
             //$this->view->registerJsFile(Yii::$app->homeUrl . 'js/reloadLemmas.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -81,8 +81,8 @@ class Lemma_ext_taskController extends Controller
                 'dataProvider' => $dataProvider,
                 'project' => $project
             ]);
-        }else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        }else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**

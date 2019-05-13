@@ -62,7 +62,7 @@ class Art_red_taskController extends Controller
         $plan = RedactionPlan::findOne($id_redaction_plan);
         $project = $plan->project;
 
-        if (User::userCanRedaction($project->id_project)) {
+//        if (User::userCanRedaction($project->id_project)) {
             $letters = $plan->letters;
 
             /*$lex_articles = LexArticle::find()->all();
@@ -79,8 +79,8 @@ class Art_red_taskController extends Controller
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
             return $this->render('index', compact('searchModel','dataProvider','project','plan','letters'));
-        }else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        }else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
 
