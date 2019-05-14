@@ -103,7 +103,6 @@ class Illustration_documentController extends Controller
             try {
                 $i = 0;
                 foreach ($modelIllustrations as $modelIllustration) {
-                    $i = $i + 1;
                     $modelIllustration->id_project = $project->id_project;
                     if (!($flag = $modelIllustration->save(false))) {
                         $transaction->rollBack();
@@ -135,6 +134,7 @@ class Illustration_documentController extends Controller
                             }
                         }
                     }
+                    $i++;
                 }
                 if ($flag) {
                     $transaction->commit();

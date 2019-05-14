@@ -15,7 +15,7 @@ use yii\helpers\Url;
 
 
 $this->title = 'Revisión sin derecho de edición: '.$model->extracted_lemma;
-$this->params['breadcrumbs'][] = ['label' => "Planes de Revisión" , 'url' => ['art_rev_task/plans','id_project' => $project->id_project]];
+$this->params['breadcrumbs'][] = ['label' => "Planes de revisión" , 'url' => ['art_rev_task/plans','id_project' => $project->id_project]];
 $this->params['breadcrumbs'][] = ['label' => "Lemas" , 'url' => ['art_rev_task/indexnoedition','id_revision_plan' => $revision_plan->id_revision_plan]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <div class="row">
             <div class="col-lg-12">
-                <p><strong>Sub-Modelos:</strong> <?=$revision_plan->getSubmodelName()?></p>
+                <p><strong>Componentes:</strong> <?=$revision_plan->getSubmodelName()?></p>
             </div>
         </div>
         <?php $form = ActiveForm::begin([
