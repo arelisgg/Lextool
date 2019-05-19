@@ -115,11 +115,9 @@ class Illustration_documentController extends Controller
                             $file->saveAs('uploads/project/illustration_document/' . $address);
                             $modelIllustration->url = $address;
                         } else {
-                            $modelIllustration->url = "null";
+                            $modelIllustration->url = "null.jpg";
                         }
                         $modelIllustration->save(false);
-
-
                         for ($j = 0; $j < count($documents); $j++){
                             try{
                                 if ($documentsList[$j] == "on"){
