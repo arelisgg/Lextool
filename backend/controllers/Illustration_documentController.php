@@ -101,9 +101,10 @@ class Illustration_documentController extends Controller
             Model::loadMultiple($modelIllustrations, Yii::$app->request->post());
             $transaction = \Yii::$app->db->beginTransaction();
             try {
-                $i = 0;
+                $ilus = Yii::$app->request->post("Illustration");
+                $first = array_shift($ilus);
+                $i = array_search($first, Yii::$app->request->post("Illustration"));
                 foreach ($modelIllustrations as $modelIllustration) {
-                    $i = $i + 1;
                     $modelIllustration->id_project = $project->id_project;
                     if (!($flag = $modelIllustration->save(false))) {
                         $transaction->rollBack();
@@ -116,11 +117,9 @@ class Illustration_documentController extends Controller
                             $file->saveAs('uploads/project/illustration_document/' . $address);
                             $modelIllustration->url = $address;
                         } else {
-                            $modelIllustration->url = "null";
+                            $modelIllustration->url = "null.jpg";
                         }
                         $modelIllustration->save(false);
-
-
                         for ($j = 0; $j < count($documents); $j++){
                             try{
                                 if ($documentsList[$j] == "on"){
@@ -135,6 +134,7 @@ class Illustration_documentController extends Controller
                             }
                         }
                     }
+                    $i++;
                 }
                 if ($flag) {
                     $transaction->commit();

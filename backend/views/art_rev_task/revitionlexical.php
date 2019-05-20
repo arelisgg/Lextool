@@ -49,7 +49,7 @@ Modal::end();
 
         <div class="row">
             <div class="col-lg-12">
-                <p><strong>Sub-Modelos:</strong> <?=$revision_plan->getSubmodelName()?></p>
+                <p><strong>Componentes:</strong> <?=$revision_plan->getSubmodelName()?></p>
             </div>
         </div>
         <?php $form = ActiveForm::begin([

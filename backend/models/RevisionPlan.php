@@ -145,7 +145,10 @@ class RevisionPlan extends \yii\db\ActiveRecord
      */
     public function getSubModels()
     {
-        return $this->hasMany(SubModel::className(), ['id_sub_model' => 'id_sub_model'])->viaTable('revision_plan_submodel', ['id_revision_plan' => 'id_revision_plan']);
+        $submodels = SubModel::find()
+            ->innerJoin('redaction_plan_submodel', 'redaction_plan_submodel.id_sub_model = sub_model.id_sub_model')
+            ->orderBy('order')->all();
+        return $submodels;
     }
 
     public function getLate()
