@@ -115,8 +115,11 @@ class Illustration_lemmaController extends Controller
             Model::loadMultiple($modelIllustrations, Yii::$app->request->post());
 
             $transaction = \Yii::$app->db->beginTransaction();
+
             try {
-                $i = 0;
+                $ilus = Yii::$app->request->post("Illustration");
+                $first = array_shift($ilus);
+                $i = array_search($first, Yii::$app->request->post("Illustration"));
                 foreach ($modelIllustrations as $modelIllustration) {
                     $modelIllustration->id_project = $project->id_project;
                     if (!($flag = $modelIllustration->save(false))) {
@@ -130,7 +133,7 @@ class Illustration_lemmaController extends Controller
                             $file->saveAs('uploads/project/illustration_lemma/' . $address);
                             $modelIllustration->url = $address;
                         } else {
-                            $modelIllustration->url = "null";
+                            $modelIllustration->url = "null.jpg";
                         }
                         $modelIllustration->save(false);
 
