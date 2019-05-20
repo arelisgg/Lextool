@@ -6,7 +6,7 @@ use yii\helpers\Url;
 /* @var $revition_plans_noedition backend\models\RevisionPlan[] */
 /* @var $project backend\models\Project */
 
-$this->title = 'Planes de Revisión';
+$this->title = 'Planes de revisión';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

@@ -13,7 +13,7 @@ use yii\helpers\ArrayHelper;
 /* @var $letters backend\models\Letter[] */
 
 $this->title = 'Revisión léxica de lemas';
-$this->params['breadcrumbs'][] = ['label' => "Planes de Revisión" , 'url' => ['art_rev_task/plans','id_project' => $project->id_project]];
+$this->params['breadcrumbs'][] = ['label' => "Planes de revisión" , 'url' => ['art_rev_task/plans','id_project' => $project->id_project]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div id="id_project" class="hidden"><?=$project->id_project?></div>
