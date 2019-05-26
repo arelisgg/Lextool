@@ -692,6 +692,10 @@ var app = new Vue({
                             }
                             newList.push(data)
                             order++
+
+                            lex_article_elements[i + 1].lex_article_element.order = order
+                            newList.push(lex_article_elements[i + 1])
+                            order++
                         }else {
                             lex_article_elements[i].lex_article_element.order = order
                             newList.push(lex_article_elements[i])
@@ -813,6 +817,12 @@ var app = new Vue({
                             && (lex_article_elements[i + 1] === undefined
                                 || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== elem_pos.prev.id_sub_model) ) {
                             interval.prev = prev
+                        }
+                        else  {
+                            let before_prev = lex_article_elements[i - 1]
+                            if (before_prev !== undefined) {
+                                interval.prev = before_prev
+                            }
                         }
                     }
                     if (elem_pos.next !== '') {
@@ -1061,7 +1071,7 @@ var app = new Vue({
                         let sub_model_id = interval.current.id_sub_model
 
                         let sub_model_separator = document.querySelector('li.sub_model_element.selected');
-                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling
 
                         if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                             if (sub_model_separator_sibling.className === 'sub_model_separator') {

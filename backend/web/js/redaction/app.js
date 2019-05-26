@@ -673,6 +673,10 @@ var app = new Vue({
                             }
                             newList.push(data)
                             order++
+
+                            lex_article_elements[i + 1].lex_article_element.order = order
+                            newList.push(lex_article_elements[i + 1])
+                            order++
                         }else {
                             lex_article_elements[i].lex_article_element.order = order
                             newList.push(lex_article_elements[i])
@@ -759,6 +763,7 @@ var app = new Vue({
             let result = []
 
             if (this.verifyIfWasRedacted(data.lex_article_element.id_element,data.lex_article_element.id_sub_model)) {
+
                 let elem_pos = this.elemPosInSubModel(data.element.id_element, data.sub_model.id_sub_model)
 
                 let index = 1
@@ -795,6 +800,13 @@ var app = new Vue({
                                 || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== elem_pos.prev.id_sub_model) ) {
                             interval.prev = prev
                         }
+                        else  {
+                            let before_prev = lex_article_elements[i - 1]
+                            if (before_prev !== undefined) {
+                                interval.prev = before_prev
+                            }
+                        }
+
                     }
                     if (elem_pos.next !== '') {
                         if (lex_article_elements[i + 1] !== undefined) {
@@ -825,6 +837,8 @@ var app = new Vue({
                         result.push(interval)
                         index++
                     }
+
+
 
                     if (result.length > 0 ) {
                         result[0].active = true
@@ -963,9 +977,24 @@ var app = new Vue({
                         return current
                     }
 
+                    for (let i = current_sub_model.elements.length; !stop && i > 0; i--) {
+                        let elem = current_sub_model.elements[i - 1]
+                        if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+                            let lex_article_elements = this.lex_article_elements
+                            for (let key in lex_article_elements){
+                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                    result = lex_article_elements[key]
+                                    stop = true
+                                    break
+                                }
+                            }
+                        }
+                    }
+
                     let prev_sub_model = sub_models.pop()
 
-                    if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model)) {
+                    if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model) && !stop) {
                         for (let i = prev_sub_model.elements.length; !stop && i > 0; i--) {
                             let elem = prev_sub_model.elements[i - 1]
                             if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
@@ -1048,7 +1077,67 @@ var app = new Vue({
                 }
 
                 if(!error) {
-                    if ((interval.prev !== undefined || interval.next !== undefined ) && (interval.prev !== '' || interval.next !== '')) {
+                    if (this.lex_article_elements.length === 0) {
+                        let lemma = document.querySelector('input#lemma') !== null ?  document.querySelector('input#lemma').value : '';
+
+                        let sub_model_separator_id = '';
+                        let element = this.getSelected()
+                        let separator_id = ''
+                        if (element.separator.id_separator !== undefined) {
+                            separator_id = element.separator.id_separator
+                        }
+
+                        let sub_model = this.getActiveSubModel();
+                        let sub_model_id = sub_model.id_sub_model
+
+                        let sub_model_separator = document.querySelector('li.sub_model_element.selected');
+                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+
+                        if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
+                            if (sub_model_separator_sibling.className === 'sub_model_separator') {
+                                sub_model_separator_id = parseFloat(sub_model_separator_sibling.id);
+                            }
+                        }
+
+                        let last_order = ''
+
+                        axios.get(this.url + '/art_red_task/create-element', {
+                            params: {
+                                id_lex_article: this.lex_article,
+                                id_element:  this.element.id_element,
+                                lemma: lemma,
+                                separator_id: separator_id,
+                                sub_type: this.create_element_data.sub_type,
+                                text: this.create_element_data.text,
+                                sub_model_separator_id: sub_model_separator_id,
+                                order: 1,
+                                id_sub_model: sub_model_id
+                            }
+                        }).then(res => {
+                            const data = res.data;
+
+                            data.type = this.type;
+                            data.required = this.required
+                            data.repeat = this.repeat
+
+                            data.selected = this.getSelected()
+
+                            for (let key in this.model.sub_model) {
+                                if (this.model.sub_model[key].active) {
+                                    data.sub_model_active = this.model.sub_model[key]
+                                }
+                            }
+
+                            this.lex_article_elements.push(data);
+
+                            this.create_element_data.sub_type = '';
+                            this.create_element_data.text = ''
+
+                            this.empty_autocomplete = true
+                            this.element_order += 1
+                        })
+                    }
+                    else if ((interval.prev !== undefined || interval.next !== undefined ) && (interval.prev !== '' || interval.next !== '')) {
 
                         let lemma = document.querySelector('input#lemma') !== null ?  document.querySelector('input#lemma').value : '';
 
