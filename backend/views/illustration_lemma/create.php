@@ -84,7 +84,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                             <?php DynamicFormWidget::begin([
                                 'widgetContainer' => 'illustration_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
-                                'widgetBody' => '.illustration_items', // required: css class selector
+                                'widgetBody' => '.illustration-items', // required: css class selector
                                 'widgetItem' => '.illustration', // required: css class
                                 'limit' => 200, // the maximum times, an element can be cloned (default 999)
                                 'min' => 1, // 0 or 1 (default 1)
@@ -93,7 +93,6 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'model' => $modelIllustrations[0],
                                 'formId' => 'illustration-lemma-form',
                                 'formFields' => [
-                                    'name',
                                     'url',
                                 ],
                             ]); ?>
@@ -106,7 +105,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </div>
 
                                 <div class="box-body" style="height: 675px; padding-left: 10px; overflow-y: auto; padding-bottom: 20px;">
-                                    <div class="illustration_items"><!-- widgetContainer -->
+                                    <div class="illustration-items"><!-- widgetContainer -->
                                         <?php foreach ($modelIllustrations as $i => $modelIllustration): ?>
                                             <div class="illustration"><!-- widgetBody -->
                                                 <?php
@@ -146,7 +145,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                             'browseLabel' => ' Seleccionar ilustración',
                                                             'overwriteInitial' => true,
                                                             'initialPreviewAsData' => true,
-                                                            'initialPreview' => $modelIllustration->isNewRecord || $modelIllustration->url == 'null' ? '' : Url::home() . "uploads/project/illustration_lemma/". $modelIllustration->url,
+                                                            //'initialPreview' => $modelIllustration->isNewRecord || $modelIllustration->url == 'null' ? '' : Url::home() . "uploads/project/illustration_lemma/". $modelIllustration->url,
                                                             'allowedFileExtensions' => ['jpg', 'png', 'jpeg', 'gif', 'mp3', 'mp4',],
                                                             'allowedPreviewTypes' => ['image','video','audio'],
                                                         ],

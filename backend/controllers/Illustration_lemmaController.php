@@ -8,10 +8,12 @@ use backend\models\IllustrationPlan;
 use backend\models\Lemma;
 use backend\models\Letter;
 use backend\models\Model;
+use common\models\User;
 use Yii;
 use backend\models\IllustrationLemma;
 use backend\models\IllustrationLemmaSearch;
 use yii\web\Controller;
+use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
@@ -44,32 +46,39 @@ class Illustration_lemmaController extends Controller
     public function actionIndex($id_illustration_plan)
     {
         $illustration_plan = IllustrationPlan::findOne($id_illustration_plan);
-        $letters = $illustration_plan->letters;
+        if(User::userCanIllustrationLemma($illustration_plan->id_project)){
+            $letters = $illustration_plan->letters;
 
-        $searchModel = new IllustrationLemmaSearch();
-        $searchModel->id_illustration_plan = $id_illustration_plan;
-        //$searchModel->id_letter = $letters[0]->id_letter;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'illustration_plan' => $illustration_plan,
-            'project' => $illustration_plan->project,
-            'letters' => $letters,
+            $searchModel = new IllustrationLemmaSearch();
+            $searchModel->id_illustration_plan = $id_illustration_plan;
+            //$searchModel->id_letter = $letters[0]->id_letter;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
 
-        ]);
+            return $this->render('index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+                'illustration_plan' => $illustration_plan,
+                'project' => $illustration_plan->project,
+                'letters' => $letters,
+
+
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
 
     public function actionIllustration($id){
 
         $illustration = Illustration::findOne($id);
-        return $this->renderAjax('illustration', [
-            'illustration' => $illustration,
-        ]);
+        if(User::userCanIllustrationLemma($illustration->id_project)){
+            return $this->renderAjax('illustration', [
+                'illustration' => $illustration,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+
     }
 
     /**
@@ -80,9 +89,14 @@ class Illustration_lemmaController extends Controller
      */
     public function actionView($id)
     {
-        return $this->renderAjax('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $model = $this->findModel($id);
+        if(User::userCanIllustrationLemma($model->lemma->id_project)){
+            return $this->renderAjax('view', [
+                'model' => $model,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+
     }
 
     /**
@@ -93,93 +107,98 @@ class Illustration_lemmaController extends Controller
     public function actionCreate($id_illustration_plan)
     {
         $illustration_plan = IllustrationPlan::findOne($id_illustration_plan);
-        $letters = $illustration_plan->letters;
+        if(User::userCanIllustrationLemma($illustration_plan->id_project)){
+            $letters = $illustration_plan->letters;
 
-        $model = new IllustrationLemma();
-        $model->id_illustration_plan = $id_illustration_plan;
-        $model->id_letter = $letters[0]->id_letter;
+            $model = new IllustrationLemma();
+            $model->id_illustration_plan = $id_illustration_plan;
+            $model->id_letter = $letters[0]->id_letter;
 
-        $project = $illustration_plan->project;
-        $lemmas = [];
-        if (isset($_POST['IllustrationLemma']['id_letter']))
-            $lemmas = Lemma::find()->where(['id_project' => $project->id_project, 'id_letter' => $_POST['IllustrationLemma']['id_letter'], 'lemario'=> true])->orderBy('extracted_lemma')->all();
-        else
-            $lemmas = Lemma::find()->where(['id_project' => $project->id_project, 'id_letter' => $letters[0]->id_letter, 'lemario'=> true])->orderBy('extracted_lemma')->all();
+            $project = $illustration_plan->project;
+            $lemmas = [];
+            if (isset($_POST['IllustrationLemma']['id_letter']))
+                $lemmas = Lemma::find()->where(['id_project' => $project->id_project, 'id_letter' => $_POST['IllustrationLemma']['id_letter'], 'lemario'=> true])->orderBy('extracted_lemma')->all();
+            else
+                $lemmas = Lemma::find()->where(['id_project' => $project->id_project, 'id_letter' => $letters[0]->id_letter, 'lemario'=> true])->orderBy('extracted_lemma')->all();
 
-        $modelIllustrations = [new Illustration()];
+            $modelIllustrations = [new Illustration()];
 
-        if ($model->load(Yii::$app->request->post()) && isset($_POST['lemmas'])) {
-            $lemmasList = $_POST['lemmas'];
+            if ($model->load(Yii::$app->request->post()) && isset($_POST['lemmas'])) {
+                $lemmasList = $_POST['lemmas'];
 
-            $modelIllustrations = Model::createMultiple(Illustration::classname(), $modelIllustrations, 'id_illustration');
-            Model::loadMultiple($modelIllustrations, Yii::$app->request->post());
+                $modelIllustrations = Model::createMultiple(Illustration::classname(), $modelIllustrations, 'id_illustration');
+                Model::loadMultiple($modelIllustrations, Yii::$app->request->post());
 
-            $transaction = \Yii::$app->db->beginTransaction();
+                $transaction = \Yii::$app->db->beginTransaction();
 
-            try {
-                $ilus = Yii::$app->request->post("Illustration");
-                $first = array_shift($ilus);
-                $i = array_search($first, Yii::$app->request->post("Illustration"));
-                foreach ($modelIllustrations as $modelIllustration) {
-                    $modelIllustration->id_project = $project->id_project;
-                    if (!($flag = $modelIllustration->save(false))) {
-                        $transaction->rollBack();
-                        break;
-                    } else {
-                        $file = UploadedFile::getInstance($modelIllustration, "[{$i}]url");
-                        if (!empty($file)) {
-                            //$address = $modelIllustration->id_illustration.' - '. $modelIllustration->name .'.'. $file->extension;
-                            $address = $modelIllustration->id_illustration.' (Multiple).'. $file->extension;
-                            $file->saveAs('uploads/project/illustration_lemma/' . $address);
-                            $modelIllustration->url = $address;
+                try {
+                    $ilus = Yii::$app->request->post("Illustration");
+                    $first = array_shift($ilus);
+                    $i = array_search($first, Yii::$app->request->post("Illustration"));
+                    foreach ($modelIllustrations as $modelIllustration) {
+                        $modelIllustration->id_project = $project->id_project;
+                        if (!($flag = $modelIllustration->save(false))) {
+                            $transaction->rollBack();
+                            break;
                         } else {
-                            $modelIllustration->url = "null.jpg";
-                        }
-                        $modelIllustration->save(false);
+                            $file = UploadedFile::getInstance($modelIllustration, "[{$i}]url");
+                            if (!empty($file)) {
+                                //$address = $modelIllustration->id_illustration.' - '. $modelIllustration->name .'.'. $file->extension;
+                                $address = $modelIllustration->id_illustration.' (Multiple).'. $file->extension;
+                                $file->saveAs('uploads/project/illustration_lemma/' . $address);
+                                $modelIllustration->url = $address;
+                            } else {
+                                $modelIllustration->url = "null.jpg";
+                            }
+                            $modelIllustration->save(false);
 
-                        $z = 0;
-                        for ($j = 0; $j < count($lemmas) && $z < count($lemmasList); $j++){
-                            try{
-                                if ($lemmasList[$j] == "on"){
-                                    $z++;
-                                    $illustrationLemma = new IllustrationLemma();
-                                    $illustrationLemma->id_lemma = $lemmas[$j]->id_lemma;
-                                    $illustrationLemma->id_illustration = $modelIllustration->id_illustration;
-                                    $illustrationLemma->id_illustration_plan = $id_illustration_plan;
-                                    $illustrationLemma->save(false);
+                            $z = 0;
+                            for ($j = 0; $j < count($lemmas) && $z < count($lemmasList); $j++){
+                                try{
+                                    if ($lemmasList[$j] == "on"){
+                                        $z++;
+                                        $illustrationLemma = new IllustrationLemma();
+                                        $illustrationLemma->id_lemma = $lemmas[$j]->id_lemma;
+                                        $illustrationLemma->id_illustration = $modelIllustration->id_illustration;
+                                        $illustrationLemma->id_illustration_plan = $id_illustration_plan;
+                                        $illustrationLemma->save(false);
+                                    }
+                                } catch (\Exception $e){
+
                                 }
-                            } catch (\Exception $e){
-
                             }
                         }
+                        $i++;
                     }
-                    $i++;
+                    if ($flag) {
+                        $transaction->commit();
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
                 }
-                if ($flag) {
-                    $transaction->commit();
-                }
-            } catch (\Exception $e) {
-                $transaction->rollBack();
+
+                return $this->redirect(['index', 'id_illustration_plan' => $id_illustration_plan]);
             }
 
-            return $this->redirect(['index', 'id_illustration_plan' => $id_illustration_plan]);
-        }
+            //iCheck
+            $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-        //iCheck
-        $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_create.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/illustration_lemma_create.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-        $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_create.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
-        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/illustration_lemma_create.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            return $this->render('create', [
+                'model' => $model,
+                'project' => $project,
+                'letters' => $letters,
+                'lemmas' => $lemmas,
+                'modelIllustrations' => $modelIllustrations,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
-        return $this->render('create', [
-            'model' => $model,
-            'project' => $project,
-            'letters' => $letters,
-            'lemmas' => $lemmas,
-            'modelIllustrations' => $modelIllustrations,
-        ]);
+
     }
 
     public function actionLemmas($id_project, $id_letter)
@@ -206,34 +225,36 @@ class Illustration_lemmaController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $model->id_letter = $model->lemma->id_letter;
+        if(User::userCanIllustrationLemma($model->lemma->id_project)){
+            $model->id_letter = $model->lemma->id_letter;
 
-        if ($model->load(Yii::$app->request->post())) {
-            $file = UploadedFile::getInstance($model, "url");
-            if (!empty($file)) {
-                $modelIllustration = new Illustration();
-                $modelIllustration->id_project = $model->illustrationPlan->id_project;
-                $modelIllustration->save(false);
+            if ($model->load(Yii::$app->request->post())) {
+                $file = UploadedFile::getInstance($model, "url");
+                if (!empty($file)) {
+                    $modelIllustration = new Illustration();
+                    $modelIllustration->id_project = $model->illustrationPlan->id_project;
+                    $modelIllustration->save(false);
 
-                $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
-                $file->saveAs('uploads/project/illustration_lemma/' . $address);
-                $modelIllustration->url = $address;
-                $modelIllustration->save(false);
-                $model->id_illustration = $modelIllustration->id_illustration;
+                    $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
+                    $file->saveAs('uploads/project/illustration_lemma/' . $address);
+                    $modelIllustration->url = $address;
+                    $modelIllustration->save(false);
+                    $model->id_illustration = $modelIllustration->id_illustration;
+                }
+
+                if($model->save(false))
+                    return $model->lemma->extracted_lemma;
+                else
+                    return "Error";
+            } else {
+                $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+
+                return $this->renderAjax('update', [
+                    'model' => $model,
+                ]);
             }
-
-            if($model->save(false))
-                return $model->lemma->extracted_lemma;
-            else
-                return "Error";
-        } else {
-            $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
-
-            return $this->renderAjax('update', [
-                'model' => $model,
-            ]);
-        }
-
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -246,11 +267,13 @@ class Illustration_lemmaController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->delete())
-            return "Ok";
-        else
-            return "Error";
+        if(User::userCanIllustrationLemma($model->lemma->id_project)){
+            if ($model->delete())
+                return "Ok";
+            else
+                return "Error";
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
 

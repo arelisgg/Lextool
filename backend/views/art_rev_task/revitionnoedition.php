@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div id="name_project" class="hidden"><?=$project->name?></div>
 <div class="box box-primary">
     <div class="box-header with-border">
-        <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-language"></i> <?=$model->extracted_lemma?></h2>
+        <h2 class="box-title"><i class="fa fa-language"></i> <?=$model->extracted_lemma?></h2>
     </div>
     <div class="box-body">
         <div class="row">
@@ -109,7 +109,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
         <div class="form-group" style="text-align: right">
-            <?= Html::submitButton('Salvar', ['class' => 'btn btn-primary']) ?>
+            <?= Html::submitButton('Guardar', ['class' => 'btn btn-primary']) ?>
             <a href="<?= Url::to(['art_rev_task/indexnoedition', 'id_revision_plan' => $revision_plan->id_revision_plan]) ?>" type="button" class="btn btn-default" >Cancelar</a>
         </div>
 
