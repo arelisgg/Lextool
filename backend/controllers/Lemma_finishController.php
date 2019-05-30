@@ -118,7 +118,8 @@ class Lemma_finishController extends Controller
         else
             $model->finished = 0;
         $model->save();
-        return $model->finished;
+        return $this->redirect(['view', 'id' => $model->id_lemma]);
+        //return $model->finished;
     }
 
     public function actionDelete($id)

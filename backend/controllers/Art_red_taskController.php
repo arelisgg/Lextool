@@ -235,9 +235,6 @@ class Art_red_taskController extends Controller
         $model = $this->findModel($id);
 
         if (User::userCanRedaction($model->lemma->id_project)) {
-            foreach ($model->lexArticleElements as $element){
-                $element->delete();
-            }
 
             if ($model->delete())
                 return "Ok";

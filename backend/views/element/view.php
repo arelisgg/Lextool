@@ -203,13 +203,6 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
 
-        <p style="text-align: right; margin-top: 10px; margin-right: 10px">
-            <?= Html::a('Editar', ['update', 'id' => $model->id_element], ['class' => 'btn btn-primary']) ?>
-            <?= Html::button('Eliminar',[
-                    "onclick"=>"actionDelete('$model->id_element', '".Url::to(['/element/delete_view',])."')",
-                    "title"=>"Eliminar", 'class' => 'btn btn-danger']);
-            ?>
-        </p>
     </div>
 
 </div>

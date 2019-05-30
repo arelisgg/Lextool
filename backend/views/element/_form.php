@@ -31,7 +31,7 @@ use yii\web\JsExpression;
             <?= $form->field($model, 'id_project', ['options' => ['class' => 'hidden']])->textInput() ?>
 
             <?= $form->field($model,'id_element_type')->widget(Select2::className(),[
-                'data' => ArrayHelper::map(ElementType::find()->where(['removed' => false])->all(),'id_element_type','name'),
+                'data' => ArrayHelper::map(ElementType::find()->where(['removed' => false])->orderBy('name')->all(),'id_element_type','name'),
                 'options' => [
                     'placeholder' => 'Seleccione...',
                     'onChange' => 'vaciar()',
