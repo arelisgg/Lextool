@@ -184,7 +184,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <div class="col-md-12 margin-top-20">
                                                         <label for="article">Redacción</label>
                                                         <input v-if="element.type === 'División Silábica' || element.type === 'División silábica'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
-                                                        <input v-else-if="element.type === 'Acepción' || element.type === 'acepción'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
+                                                        <input v-else-if="element.type === 'Acepción'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
                                                         <textarea v-else id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text" rows="5"></textarea>
                                                     </div>
 
