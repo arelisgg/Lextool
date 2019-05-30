@@ -2,7 +2,7 @@ Vue.component('lex-article-element', {
     template:
         `
         <li class="lex_element" @click="updateElement(element.lex_article_element.id_lex_article_element)">
-              <span style="margin-left: 3px" v-if="element.submodel_separator !== undefined && isFirstElement">{{ element.submodel_separator.representation }}</span>
+              <span style="margin-left: 3px" v-if="(element.sub_model_separator !== undefined && element.sub_model_separator !== '') && isFirstElement">{{ element.sub_model_separator.representation }}</span>
             
               <span v-if="hasVisibility" class="elem" :style="elementStyles">
                 {{ element.lex_article_element.element }}
@@ -72,17 +72,17 @@ Vue.component('lex-article-element', {
             return styles
         },
         isFirstElement: function () {
-            if (this.element.submodel_separator !== undefined)  {
+            if (this.element.sub_model_separator !== undefined)  {
                 let first_element = _.first(this.lex_article_elements)
                 let first_sub_model_element = _.first(this.element.sub_model_active.elements)
 
                 if (first_element === this.element
-                    && this.element.submodel_separator !== ''
+                    && this.element.sub_model_separator !== ''
                     && (this.element.element.id_element !== first_sub_model_element.id_element
                         && this.element.sub_model.id_sub_model !== this.element.sub_model_active.id_sub_model )) {
                     return false
                 }else if (first_element !== this.element
-                    && this.element.submodel_separator !== ''
+                    && this.element.sub_model_separator !== ''
                     && (this.element.element.id_element === first_sub_model_element.id_element
                         && this.element.sub_model.id_sub_model === this.element.sub_model_active.id_sub_model )) {
                     return true

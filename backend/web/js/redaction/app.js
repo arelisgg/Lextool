@@ -551,6 +551,13 @@ var app = new Vue({
 
             result.current = element_pos.current
 
+            if (result.prev === '') {
+                result.prev = undefined
+            }
+            if (result.next === '') {
+                result.next = undefined
+            }
+
             return result
         },
         findSimpleLexArtElem: function(element) {
@@ -577,7 +584,7 @@ var app = new Vue({
 
             let order = 1
 
-            if (prev !== undefined && next === '') {
+            if (prev !== undefined && (next === '' || next === undefined)) {
 
                 for (let i = 0; i < lex_article_elements.length; i++) {
                     let lex_article_element = lex_article_elements[i]
@@ -610,7 +617,7 @@ var app = new Vue({
                 }
 
             }
-            else if (prev === '' && next !== undefined) {
+            else if ((prev === '' || prev === undefined) && next !== undefined) {
 
                 for (let i = 0; i < lex_article_elements.length; i++) {
                     let lex_article_element = lex_article_elements[i]
@@ -702,7 +709,10 @@ var app = new Vue({
                 params: {
                     lex_article_elements: result
                 }
-            }).then(res => console.log(res.data))
+            }).then(res => {
+                console.log(res.data)
+                this.type = ''
+            })
 
         },
         verifyIfWasRedacted: function (id_element,id_sub_model) {
@@ -718,7 +728,7 @@ var app = new Vue({
         },
         elemPosInSubModel: function (id_element, id_sub_model) {
             let elem_pos = {
-                prev: '',
+                prev: [],
                 current: '',
                 next: ''
             }
@@ -728,18 +738,27 @@ var app = new Vue({
             let stop = false
 
             for (let i = 0; i < sub_models.length && !stop; i++) {
+
+                if (sub_models[i + 1] !== undefined && sub_models[i + 1].id_sub_model === id_sub_model
+                    && this.subModelWasAssigned(sub_models[i])) {
+                    let current_sub_model = sub_models[i]
+
+                    let last_element = _.last(current_sub_model.elements)
+
+                    elem_pos.prev.push(last_element)
+                }
+
                 if (sub_models[i].id_sub_model === id_sub_model) {
                     let current_sub_model = sub_models[i]
-                    for (let j = 0; j < current_sub_model.elements.length && !stop;j++) {
+                    for (let j = 0; j < current_sub_model.elements.length;j++) {
                         let element = current_sub_model.elements[j]
 
                         if (element.id_element === id_element && j === 0){
                             elem_pos.current = element
-                            elem_pos.prev = current_sub_model.elements[current_sub_model.elements.length - 1]
-                            stop = true
+                            elem_pos.prev.push(current_sub_model.elements[current_sub_model.elements.length - 1])
                         }else if (element.id_element === id_element && j > 0) {
                             elem_pos.current = element
-                            elem_pos.prev = current_sub_model.elements[j - 1]
+                            elem_pos.prev.push(current_sub_model.elements[j - 1])
                             if ((j + 1) < current_sub_model.elements.length) {
                                 elem_pos.next = current_sub_model.elements[j + 1]
                             }
@@ -781,32 +800,31 @@ var app = new Vue({
                     let prev = ''
                     let next = ''
 
-                    if (elem_pos.prev !== '') {
+                    let prev_element = ''
+
+                    if (elem_pos.prev.length > 0) {
+                        prev_element = _.first(elem_pos.prev)
+
                         prev = lex_article_elements[i]
 
-                        if (parseFloat(prev.lex_article_element.id_element)  === elem_pos.prev.id_element
-                            && parseFloat(prev.lex_article_element.id_sub_model) === elem_pos.prev.id_sub_model) {
+                        if (parseFloat(prev.lex_article_element.id_element)  === prev_element.id_element
+                            && parseFloat(prev.lex_article_element.id_sub_model) === prev_element.id_sub_model) {
 
                             if (lex_article_elements[i + 1] !== undefined) {
                                 next = lex_article_elements[i + 1]
                                 if (parseFloat(next.element.id_element)  !== data.element.id_element) {
                                     interval.prev = prev
+                                    elem_pos.prev.shift()
                                 }
                             }
                         }
-                        if (parseFloat(prev.lex_article_element.id_element)  === elem_pos.prev.id_element
-                            && parseFloat(lex_article_elements[i].lex_article_element.id_sub_model) === elem_pos.prev.id_sub_model
+                        if (parseFloat(prev.lex_article_element.id_element)  === prev_element.id_element
+                            && parseFloat(lex_article_elements[i].lex_article_element.id_sub_model) === prev_element.id_sub_model
                             && (lex_article_elements[i + 1] === undefined
-                                || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== elem_pos.prev.id_sub_model) ) {
+                                || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== prev_element.id_sub_model) ) {
                             interval.prev = prev
+                            elem_pos.prev.shift()
                         }
-                        else  {
-                            let before_prev = lex_article_elements[i - 1]
-                            if (before_prev !== undefined) {
-                                interval.prev = before_prev
-                            }
-                        }
-
                     }
                     if (elem_pos.next !== '') {
                         if (lex_article_elements[i + 1] !== undefined) {
@@ -837,8 +855,6 @@ var app = new Vue({
                         result.push(interval)
                         index++
                     }
-
-
 
                     if (result.length > 0 ) {
                         result[0].active = true
@@ -977,16 +993,32 @@ var app = new Vue({
                         return current
                     }
 
-                    for (let i = current_sub_model.elements.length; !stop && i > 0; i--) {
-                        let elem = current_sub_model.elements[i - 1]
+                    let elements = []
+
+                    for (let element in current_sub_model.elements) {
+                        elements.push(current_sub_model.elements[element])
+                    }
+
+                    while(elements.length > 0 && !stop) {
+
+                        let elem = elements.pop()
+
                         if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
                             let lex_article_elements = this.lex_article_elements
                             for (let key in lex_article_elements){
-                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
-                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
-                                    result = lex_article_elements[key]
-                                    stop = true
-                                    break
+                                if (this.repeat) {
+                                    if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                        && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                        result = lex_article_elements[key]
+                                        stop = true
+                                        break
+                                    }
+                                } else {
+                                    if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                        && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                        result = lex_article_elements[key]
+                                        stop = true
+                                    }
                                 }
                             }
                         }
@@ -995,35 +1027,70 @@ var app = new Vue({
                     let prev_sub_model = sub_models.pop()
 
                     if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model) && !stop) {
-                        for (let i = prev_sub_model.elements.length; !stop && i > 0; i--) {
-                            let elem = prev_sub_model.elements[i - 1]
+
+                        let elements = []
+
+                        for (let element in prev_sub_model.elements) {
+                            elements.push(prev_sub_model.elements[element])
+                        }
+
+                        while (elements.length > 0 && !stop) {
+
+                            let elem = elements.pop()
+
                             if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
                                 let lex_article_elements = this.lex_article_elements
                                 for (let key in lex_article_elements){
-                                    if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
-                                        && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
-                                        result = lex_article_elements[key]
-                                        stop = true
-                                        break
+                                    if (this.repeat) {
+                                        if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                            && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                            result = lex_article_elements[key]
+                                            stop = true
+                                            break
+                                        }
+                                    } else {
+                                        if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                            && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                            result = lex_article_elements[key]
+                                            stop = true
+                                        }
                                     }
                                 }
                             }
                         }
+
                         if (!stop) {
                             while (sub_models.length > 0 && !stop) {
                                 let prev_sub_model = sub_models.pop()
 
                                 if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model)) {
-                                    for (let i = prev_sub_model.elements.length && !stop; i > 0; i--) {
-                                        let elem = prev_sub_model.elements[i - 1]
+
+                                    let elements = []
+
+                                    for (let element in prev_sub_model.elements) {
+                                        elements.push(prev_sub_model.elements[element])
+                                    }
+
+                                    while (elements.length > 0 && !stop){
+
+                                        let elem = elements.pop()
+
                                         if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
                                             let lex_article_elements = this.lex_article_elements
                                             for (let key in lex_article_elements){
-                                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
-                                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
-                                                    result = lex_article_elements[key]
-                                                    stop = true
-                                                    break
+                                                if (this.repeat) {
+                                                    if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                                        && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                                        result = lex_article_elements[key]
+                                                        stop = true
+                                                        break
+                                                    }
+                                                } else {
+                                                    if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                                        && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                                        result = lex_article_elements[key]
+                                                        stop = true
+                                                    }
                                                 }
                                             }
                                         }
@@ -1036,16 +1103,31 @@ var app = new Vue({
                             let prev_sub_model = sub_models.pop()
 
                             if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model)) {
-                                for (let i = prev_sub_model.elements.length && !stop; i > 0; i--) {
-                                    let elem = prev_sub_model.elements[i - 1]
+
+                                let elements = []
+
+                                for (let element in prev_sub_model.elements) {
+                                    elements.push(prev_sub_model.elements[element])
+                                }
+
+                                while (elements.length > 0 && !stop) {
+                                    let elem = elements.pop()
                                     if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
                                         let lex_article_elements = this.lex_article_elements
                                         for (let key in lex_article_elements){
-                                            if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
-                                                && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
-                                                result = lex_article_elements[key]
-                                                stop = true
-                                                break
+                                            if (this.repeat) {
+                                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                                    result = lex_article_elements[key]
+                                                    stop = true
+                                                    break
+                                                }
+                                            } else {
+                                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                                    result = lex_article_elements[key]
+                                                    stop = true
+                                                }
                                             }
                                         }
                                     }
@@ -1091,7 +1173,7 @@ var app = new Vue({
                         let sub_model_id = sub_model.id_sub_model
 
                         let sub_model_separator = document.querySelector('li.sub_model_element.selected');
-                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling
 
                         if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                             if (sub_model_separator_sibling.className === 'sub_model_separator') {
@@ -1134,7 +1216,8 @@ var app = new Vue({
                             this.create_element_data.text = ''
 
                             this.empty_autocomplete = true
-                            this.element_order += 1
+
+                            this.type = ''
                         })
                     }
                     else if ((interval.prev !== undefined || interval.next !== undefined ) && (interval.prev !== '' || interval.next !== '')) {
@@ -1152,7 +1235,7 @@ var app = new Vue({
                         let sub_model_id = interval.current.id_sub_model
 
                         let sub_model_separator = document.querySelector('li.sub_model_element.selected');
-                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling;
 
                         if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                             if (sub_model_separator_sibling.className === 'sub_model_separator') {
@@ -1201,7 +1284,7 @@ var app = new Vue({
                             let sub_model_id = interval.current.id_sub_model
 
                             let sub_model_separator = document.querySelector('li.sub_model_element.selected');
-                            let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+                            let sub_model_separator_sibling = sub_model_separator.previousElementSibling;
 
                             if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                                 if (sub_model_separator_sibling.className === 'sub_model_separator') {
@@ -1243,7 +1326,7 @@ var app = new Vue({
                             let sub_model_id = sub_model.id_sub_model
 
                             let sub_model_separator = document.querySelector('li.sub_model_element.selected');
-                            let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+                            let sub_model_separator_sibling = sub_model_separator.previousElementSibling;
 
                             if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                                 if (sub_model_separator_sibling.className === 'sub_model_separator') {
@@ -1302,7 +1385,6 @@ var app = new Vue({
                     }
                 }
             }else {
-                console.log(element)
                 let error = false
 
                 if (this.create_element_data.text === "" && this.type === 'red') {
@@ -1310,34 +1392,35 @@ var app = new Vue({
                     error = true
                 }
 
-                let lemma = document.querySelector('input#lemma') !== null ?  document.querySelector('input#lemma').value : '';
+                if (!error) {
+                    let lemma = document.querySelector('input#lemma') !== null ?  document.querySelector('input#lemma').value : '';
 
-                axios.get(this.url + '/art_red_task/update-lex-art-elem', {
-                    params: {
-                        id_lex_article_element: element.lex_article_element.id_lex_article_element,
-                        sub_type: this.create_element_data.sub_type,
-                        text: this.create_element_data.text,
-                        lemma: lemma,
-                        id_element: element.id_element
-                    }
-                }).then(res => {
-                    const data = res.data;
-
-                    for (let key in this.lex_article_elements) {
-                        if (this.lex_article_elements[key].lex_article_element.id_lex_article_element
-                            === data.lex_article_element.id_lex_article_element){
-
-                            this.lex_article_elements[key].sub_element = data.sub_element
-                            this.lex_article_elements[key].element = data.element
-                            this.lex_article_elements[key].lex_article_element = data.lex_article_element
-                            this.lex_article_elements[key].sub_element_type = data.sub_element_type
-
-                            break
+                    axios.get(this.url + '/art_red_task/update-lex-art-elem', {
+                        params: {
+                            id_lex_article_element: element.lex_article_element.id_lex_article_element,
+                            sub_type: this.create_element_data.sub_type,
+                            text: this.create_element_data.text,
+                            lemma: lemma,
+                            id_element: element.id_element
                         }
-                    }
-                })
-            }
+                    }).then(res => {
+                        const data = res.data;
 
+                        for (let key in this.lex_article_elements) {
+                            if (this.lex_article_elements[key].lex_article_element.id_lex_article_element
+                                === data.lex_article_element.id_lex_article_element){
+
+                                this.lex_article_elements[key].sub_element = data.sub_element
+                                this.lex_article_elements[key].element = data.element
+                                this.lex_article_elements[key].lex_article_element = data.lex_article_element
+                                this.lex_article_elements[key].sub_element_type = data.sub_element_type
+
+                                break
+                            }
+                        }
+                    })
+                }
+            }
         },
         subModelWasAssigned: function (sub_model) {
 

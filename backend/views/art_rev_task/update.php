@@ -208,7 +208,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <ul id="lexicographical_element">
                                                         <lex-article-element
                                                                 :key="element.lex_article_element.id_lex_article_element"
-                                                                v-if="element.element !== undefined && (element.element.visibility || element.sub_element.visibility)"
+                                                                v-if="element.element !== undefined"
                                                                 :lex_article_elements="lex_article_elements"
                                                                 :element="element"
                                                                 v-for="(element, index) in lex_article_elements"
