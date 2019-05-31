@@ -197,6 +197,7 @@ class Art_red_taskController extends Controller
      * @param integer $id
      * @param $id_redaction_plan
      * @return mixed
+     * @throws NotAcceptableHttpException
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionUpdate($id,$id_redaction_plan)
@@ -234,9 +235,6 @@ class Art_red_taskController extends Controller
         $model = $this->findModel($id);
 
         if (User::userCanRedaction($model->lemma->id_project)) {
-            foreach ($model->lexArticleElements as $element){
-                $element->delete();
-            }
 
             if ($model->delete())
                 return "Ok";
@@ -573,16 +571,16 @@ class Art_red_taskController extends Controller
                 $sub_model_separator = SubModelSeparator::findOne(['id_sub_model' => $id_sub_model]);
                 $sub_model_separator = Separator::findOne(['id_separator' => $sub_model_separator->id_separator]);
 
-                array_push($keys,'submodel_separator');
+                array_push($keys,'sub_model_separator');
                 array_push($result,$sub_model_separator);
             }catch (\Exception $exception){}
 
         }elseif ($sub_model_separator_id != "") {
             $sub_model_separator = Separator::findOne($sub_model_separator_id);
-            array_push($keys,'submodel_separator');
+            array_push($keys,'sub_model_separator');
             array_push($result,$sub_model_separator);
         }else {
-            array_push($keys,'submodel_separator');
+            array_push($keys,'sub_model_separator');
             array_push($result,$sub_model_separator);
         }
 

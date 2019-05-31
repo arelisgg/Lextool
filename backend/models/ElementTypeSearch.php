@@ -64,6 +64,13 @@ class ElementTypeSearch extends ElementType
 
         $query->andFilterWhere(['ilike', 'name', $this->name]);
 
+        $dataProvider->setSort([
+            'attributes'=>[
+                'name',
+            ],
+            'defaultOrder' => ['name'=>SORT_ASC]
+        ]);
+
         return $dataProvider;
     }
 }

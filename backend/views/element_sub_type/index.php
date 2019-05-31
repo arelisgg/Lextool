@@ -58,7 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                     'delete' => function ($url,$model,$key) {
                         return Html::a('<span class="glyphicon glyphicon-trash"></span>',
-                            '', ["onclick"=>"eliminar('$model->id_element_sub_type', 'tipo de sub-elemento lexicográfico', 'element-sub-type-pjax')", "title"=>"Eliminar"]);
+                            '', ["onclick"=>"eliminar('$model->id_element_sub_type', 'tipo de subelemento lexicográfico', 'element-sub-type-pjax')", "title"=>"Eliminar"]);
                     },
                 ],
             ],

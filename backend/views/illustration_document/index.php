@@ -67,7 +67,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'archivo',
                 'format' => 'raw',
                 'value'=>function ($model, $index, $widget) {
-                    return Html::button('Ilustración', ["onclick"=>"illustration('".$model->id_illustration."')", "title"=>"Ver Ilustración", 'class' => 'btn btn-link']);
+                    return Html::button('Ilustración', [
+                        "onclick"=>"illustration('".$model->id_illustration."')",
+                        "title"=>"Ver Ilustración",
+                        'class' => 'btn btn-link',
+                        'style' => "padding: 0px"
+                    ]);
                 }
             ],
             [

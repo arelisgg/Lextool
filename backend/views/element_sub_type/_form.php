@@ -18,7 +18,7 @@ use backend\models\ElementType;
     ]); ?>
 
     <?= $form->field($model, 'id_element_type')->widget(Select2::classname(), [
-        'data' => ArrayHelper::map(ElementType::find()->where(['removed' => false])->all(), 'id_element_type', 'name'),
+        'data' => ArrayHelper::map(ElementType::find()->where(['removed' => false])->orderBy('name')->all(), 'id_element_type', 'name'),
         'options' => [
             'placeholder' => 'Seleccione...',
         ],
@@ -51,7 +51,7 @@ use backend\models\ElementType;
                 $(form).trigger("reset");
                 $.pjax.reload({container: '#element-sub-type-pjax'});
                 $(document).find('#modal').modal('hide');
-                krajeeDialogSuccess.alert('El tipo de sub-elemento lexicográfico "'+result+'" ha sido guardado.');
+                krajeeDialogSuccess.alert('El tipo de subelemento lexicográfico "'+result+'" ha sido guardado.');
             }
         }).fail(function() {
             krajeeDialogError.alert("Error")

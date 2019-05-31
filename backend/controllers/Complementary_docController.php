@@ -91,7 +91,7 @@ class Complementary_docController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 
     protected function findModelProject($id_project)
@@ -100,6 +100,6 @@ class Complementary_docController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

@@ -327,7 +327,7 @@ class ElementController extends Controller
         $out = ['results' => []];
 
         if(!is_null($id) && $id != ""){
-            $list = ElementSubType::find()->where(['id_element_type' => $id])->andFilterWhere(['ilike', 'name', $q])->orderBy('name')->all();
+            $list = ElementSubType::find()->where(['id_element_type' => $id, 'removed' => false])->andFilterWhere(['ilike', 'name', $q])->orderBy('name')->all();
 
             for ($i = 0; $i < count($list); $i++){
                 $out['results'][$i]['id'] = $list[$i]->id_element_sub_type;

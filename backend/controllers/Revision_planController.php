@@ -162,6 +162,8 @@ class Revision_planController extends Controller
             $model->criterias = $model->reviewCriterias;
 
             if ($model->load(Yii::$app->request->post())) {
+                if ($model->type === "Léxica")
+                    $model->edition = "";
                 if($model->save(false)){
                     $model->deleteAllPlanLetter();
                     $this->createPlanLetter($model);

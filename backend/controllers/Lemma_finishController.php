@@ -113,12 +113,15 @@ class Lemma_finishController extends Controller
 
     public function actionFinished($id){
         $model = $this->findModel($id);
-        if ($model->finished == 0)
-            $model->finished = 1;
-        else
-            $model->finished = 0;
-        $model->save();
-        return $model->finished;
+        if (User::userCanProjectAndRol($model->id_project, "Jefe de Proyecto")){
+            if ($model->finished == 0)
+                $model->finished = 1;
+            else
+                $model->finished = 0;
+            $model->save();
+            return $this->redirect(['view', 'id' => $model->id_lemma]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     public function actionDelete($id)

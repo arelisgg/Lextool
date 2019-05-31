@@ -734,16 +734,16 @@ class Art_rev_taskController extends Controller
                 $sub_model_separator = SubModelSeparator::findOne(['id_sub_model' => $id_sub_model]);
                 $sub_model_separator = Separator::findOne(['id_separator' => $sub_model_separator->id_separator]);
 
-                array_push($keys,'submodel_separator');
+                array_push($keys,'sub_model_separator');
                 array_push($result,$sub_model_separator);
             }catch (\Exception $exception){}
 
         }elseif ($sub_model_separator_id != "") {
             $sub_model_separator = Separator::findOne($sub_model_separator_id);
-            array_push($keys,'submodel_separator');
+            array_push($keys,'sub_model_separator');
             array_push($result,$sub_model_separator);
         }else {
-            array_push($keys,'submodel_separator');
+            array_push($keys,'sub_model_separator');
             array_push($result,$sub_model_separator);
         }
 
