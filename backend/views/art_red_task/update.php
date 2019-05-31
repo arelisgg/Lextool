@@ -171,7 +171,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                 <form @submit.prevent="onSubmit(element)">
                                                     <input type="hidden" name="_csrf-backend" value="sfZV2JPu9gsYrP390yKjq61gGeHWTYKZF7XkIcWp4FbEoDjhyY-3bX7zq7KUU5blgCZ_tKUK8Mt8goVUps6Wbg==">
 
-                                                    <div class="col-md-12" v-show="element.type !== 'Acepción' || element.type !== 'acepción'">
+                                                    <div class="col-md-12" v-show="element.type !== 'Acepción'">
                                                         <label for="sub_element">Sub-Tipos: </label>
                                                         <select id="sub_element" class="form-control" name="sub_element" title="Sub-Tipo" v-model="create_element_data.sub_type">
                                                             <option value=""></option>
