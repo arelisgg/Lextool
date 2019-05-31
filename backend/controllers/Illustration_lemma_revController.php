@@ -9,10 +9,12 @@ use backend\models\IllustrationRevPlan;
 use backend\models\Lemma;
 use backend\models\Letter;
 use backend\models\Model;
+use common\models\User;
 use Yii;
 use backend\models\IllustrationLemma;
 use backend\models\IllustrationLemmaSearch;
 use yii\web\Controller;
+use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
@@ -46,31 +48,37 @@ class Illustration_lemma_revController extends Controller
     {
 
         $illustration_rev_plan = IllustrationRevPlan::findOne($id_illustration_rev_plan);
-        $illustration_plan = IllustrationPlan::findOne($illustration_rev_plan->id_illustration_plan);
-        $letters = $illustration_plan->letters;
+        if(User::userCanIllustrationRev($illustration_rev_plan->id_project)){
+            $illustration_plan = IllustrationPlan::findOne($illustration_rev_plan->id_illustration_plan);
+            $letters = $illustration_plan->letters;
 
-        $searchModel = new IllustrationLemmaSearch();
-        $searchModel->id_illustration_plan = $illustration_rev_plan->id_illustration_plan;
-        //$searchModel->id_letter = $letters[0]->id_letter;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            $searchModel = new IllustrationLemmaSearch();
+            $searchModel->id_illustration_plan = $illustration_rev_plan->id_illustration_plan;
+            //$searchModel->id_letter = $letters[0]->id_letter;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'illustration_rev_plan' => $illustration_rev_plan,
-            'project' => $illustration_plan->project,
-            'letters' => $letters,
+            return $this->render('index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+                'illustration_rev_plan' => $illustration_rev_plan,
+                'project' => $illustration_plan->project,
+                'letters' => $letters,
 
 
-        ]);
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     public function actionIllustration($id){
 
         $illustration = Illustration::findOne($id);
-        return $this->renderAjax('illustration', [
-            'illustration' => $illustration,
-        ]);
+        if(User::userCanIllustrationRev($illustration->id_project)){
+            return $this->renderAjax('illustration', [
+                'illustration' => $illustration,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -81,9 +89,13 @@ class Illustration_lemma_revController extends Controller
      */
     public function actionView($id)
     {
-        return $this->renderAjax('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $model = $this->findModel($id);
+        if(User::userCanIllustrationRev($model->lemma->id_project)){
+            return $this->renderAjax('view', [
+                'model' => $model,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
 
@@ -97,38 +109,40 @@ class Illustration_lemma_revController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $model->id_letter = $model->lemma->id_letter;
+        if(User::userCanIllustrationRev($model->lemma->id_project)){
+            $model->id_letter = $model->lemma->id_letter;
 
-        if ($model->load(Yii::$app->request->post())) {
-            $file = UploadedFile::getInstance($model, "url");
-            if (!empty($file)) {
-                $modelIllustration = new Illustration();
-                $modelIllustration->id_project = $model->illustrationPlan->id_project;
-                $modelIllustration->save(false);
+            if ($model->load(Yii::$app->request->post())) {
+                $file = UploadedFile::getInstance($model, "url");
+                if (!empty($file)) {
+                    $modelIllustration = new Illustration();
+                    $modelIllustration->id_project = $model->illustrationPlan->id_project;
+                    $modelIllustration->save(false);
 
-                $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
-                $file->saveAs('uploads/project/illustration_lemma/' . $address);
-                $modelIllustration->url = $address;
-                $modelIllustration->save(false);
-                $model->id_illustration = $modelIllustration->id_illustration;
+                    $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
+                    $file->saveAs('uploads/project/illustration_lemma/' . $address);
+                    $modelIllustration->url = $address;
+                    $modelIllustration->save(false);
+                    $model->id_illustration = $modelIllustration->id_illustration;
+                }
+                if ($model->reviewed == true)
+                    $model->reviewed = false;
+                else
+                    $model->reviewed = true;
+
+                if($model->save(false))
+                    return $model->lemma->extracted_lemma;
+                else
+                    return "Error";
+            } else {
+                $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+
+                return $this->renderAjax('update', [
+                    'model' => $model,
+                ]);
             }
-            if ($model->reviewed == true)
-                $model->reviewed = false;
-            else
-                $model->reviewed = true;
-
-            if($model->save(false))
-                return $model->lemma->extracted_lemma;
-            else
-                return "Error";
-        } else {
-            $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
-
-            return $this->renderAjax('update', [
-                'model' => $model,
-            ]);
-        }
-
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -141,11 +155,13 @@ class Illustration_lemma_revController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->delete())
-            return "Ok";
-        else
-            return "Error";
+        if(User::userCanIllustrationRev($model->lemma->id_project)){
+            if ($model->delete())
+                return "Ok";
+            else
+                return "Error";
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
 
@@ -162,6 +178,6 @@ class Illustration_lemma_revController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('No tiene permitido ejecutar esta acción.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

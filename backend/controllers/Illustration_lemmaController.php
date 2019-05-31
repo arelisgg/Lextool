@@ -113,6 +113,7 @@ class Illustration_lemmaController extends Controller
             $model = new IllustrationLemma();
             $model->id_illustration_plan = $id_illustration_plan;
             $model->id_letter = $letters[0]->id_letter;
+            $model->scenario = "create";
 
             $project = $illustration_plan->project;
             $lemmas = [];
@@ -290,6 +291,6 @@ class Illustration_lemmaController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('No tiene permitido ejecutar esta acción.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

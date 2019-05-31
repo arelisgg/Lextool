@@ -277,7 +277,7 @@ class Document_makeController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 
     protected function findModelDocument($id)
@@ -286,7 +286,7 @@ class Document_makeController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 
     protected function findModelProject($id_project)
@@ -295,7 +295,7 @@ class Document_makeController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 
     protected function findModel($id)
@@ -304,6 +304,6 @@ class Document_makeController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

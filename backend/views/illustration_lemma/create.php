@@ -2,8 +2,6 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
-use kartik\select2\Select2;
-use yii\helpers\ArrayHelper;
 use wbraganca\dynamicform\DynamicFormWidget;
 use kartik\file\FileInput;
 
@@ -43,8 +41,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php $form = ActiveForm::begin([
                     'id' => 'illustration-lemma-form',
+                    "method" => "post",
                     "options" => ["enctype" => "multipart/form-data"],
-
+                    //'enableClientValidation' => true,
                 ]); ?>
                 <?= $form->field($model, 'id_illustration_plan', ['options' => ['class' => 'hidden']])->textInput() ?>
                 <?= $form->field($model, 'id_letter', ['options' => ['class' => 'hidden']])->textInput() ?>
@@ -83,9 +82,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="col-lg-9">
 
                             <?php DynamicFormWidget::begin([
-                                'widgetContainer' => 'illustration_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
-                                'widgetBody' => '.illustration-items', // required: css class selector
-                                'widgetItem' => '.illustration', // required: css class
+                                'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+                                'widgetBody' => '.container-items', // required: css class selector
+                                'widgetItem' => '.item', // required: css class
                                 'limit' => 200, // the maximum times, an element can be cloned (default 999)
                                 'min' => 1, // 0 or 1 (default 1)
                                 'insertButton' => '.add-item', // css class
@@ -98,27 +97,24 @@ $this->params['breadcrumbs'][] = $this->title;
                             ]); ?>
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-file-image-o"></i> Ilustraciones</h2>
+                                    <h2 class="box-title"><i class="fa fa-file-image-o"></i> Ilustraciones</h2>
                                     <button type="button" class="add-item btn btn-success btn-sm pull-right">
                                         <i class="glyphicon glyphicon-plus"></i>
                                     </button>
                                 </div>
 
                                 <div class="box-body" style="height: 675px; padding-left: 10px; overflow-y: auto; padding-bottom: 20px;">
-                                    <div class="illustration-items"><!-- widgetContainer -->
-                                        <?php foreach ($modelIllustrations as $i => $modelIllustration): ?>
-                                            <div class="illustration"><!-- widgetBody -->
+                                    <div class="container-items"><!-- widgetContainer -->
+                                        <?php foreach ($modelIllustrations as $j => $modelIllustration): ?>
+                                            <div class="item"><!-- widgetBody -->
                                                 <?php
-                                                // necessary for update action.
-                                                if (!$modelIllustration->isNewRecord) {
-                                                    echo Html::activeHiddenInput($modelIllustration, "[{$i}]id_illustration");
-                                                }else
                                                     $modelIllustration->scenario = 'create';
                                                 ?>
 
                                                 <div class="col-lg-4" style="padding-left: 0px; padding-right: 0px; height: 330px">
 
-                                                    <?= $form->field($modelIllustration, "[{$i}]url")->widget(FileInput::classname(), [
+
+                                                    <?= $form->field($modelIllustration, "[{$j}]url")->widget(FileInput::classname(), [
                                                         'pluginOptions' => [
                                                             'uploadUrl' => Url::to(['']),
                                                             'dropZoneTitle' => 'Ilustración',

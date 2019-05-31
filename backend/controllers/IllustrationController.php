@@ -36,8 +36,7 @@ class IllustrationController extends Controller
 
     public function actionPlans($id_project)
     {
-        $project = Project::findOne($id_project);
-
+        $project = $this->findModelProject($id_project);
         $user = Yii::$app->user;
 
         $illustration_plans1 = IllustrationPlan::find()->where(['id_user' => $user->id, 'type'=>'Lema', 'id_project' => $id_project ,'finished' => false])->all();
@@ -60,8 +59,7 @@ class IllustrationController extends Controller
 
     public function actionRevplans($id_project)
     {
-        $project = Project::findOne($id_project);
-
+        $project = $this->findModelProject($id_project);
         $user = Yii::$app->user;
 
         $illustration_rev_plans1 = IllustrationRevPlan::find()->joinWith('illustrationPlan')->where(['illustration_rev_plan.id_user' => $user->id, 'type'=>'Lema', 'illustration_rev_plan.id_project' => $id_project ,'illustration_rev_plan.finished' => false])->all();
@@ -99,99 +97,13 @@ class IllustrationController extends Controller
         return $this->redirect(['revplans', 'id_project' => $plan->id_project]);
     }
 
-    /**
-     * Lists all Illustration models.
-     * @return mixed
-     */
-    public function actionIndex()
+
+    protected function findModelProject($id)
     {
-        $searchModel = new IllustrationSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * Displays a single Illustration model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Illustration model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Illustration();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_illustration]);
-        }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Updates an existing Illustration model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_illustration]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Deletes an existing Illustration model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }
-
-    /**
-     * Finds the Illustration model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Illustration the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Illustration::findOne($id)) !== null) {
+        if (($model = Project::findOne($id)) !== null) {
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

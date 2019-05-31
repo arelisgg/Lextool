@@ -148,6 +148,6 @@ class Dictionary_typeController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }
