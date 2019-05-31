@@ -7,10 +7,12 @@ use backend\models\Illustration;
 use backend\models\IllustrationPlan;
 use backend\models\IllustrationRevPlan;
 use backend\models\Model;
+use common\models\User;
 use Yii;
 use backend\models\IllustrationDocument;
 use backend\models\IllustrationDocumentSearch;
 use yii\web\Controller;
+use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
@@ -43,26 +45,32 @@ class Illustration_document_revController extends Controller
     public function actionIndex($id_illustration_rev_plan)
     {
         $illustration_rev_plan = IllustrationRevPlan::findOne($id_illustration_rev_plan);
-        $illustration_plan = IllustrationPlan::findOne($illustration_rev_plan->id_illustration_plan);
-        $searchModel = new IllustrationDocumentSearch();
-        $searchModel->id_illustration_plan = $illustration_plan->id_illustration_plan;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if(User::userCanIllustrationRev($illustration_rev_plan->id_project)){
+            $illustration_plan = IllustrationPlan::findOne($illustration_rev_plan->id_illustration_plan);
+            $searchModel = new IllustrationDocumentSearch();
+            $searchModel->id_illustration_plan = $illustration_plan->id_illustration_plan;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'illustration_rev_plan' => $illustration_rev_plan,
-            'project' => $illustration_plan->project,
-        ]);
+            return $this->render('index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+                'illustration_rev_plan' => $illustration_rev_plan,
+                'project' => $illustration_plan->project,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     public function actionIllustration($id){
 
         $illustration = Illustration::findOne($id);
-        return $this->renderAjax('illustration', [
-            'illustration' => $illustration,
-        ]);
+        if(User::userCanIllustrationRev($illustration->id_project)){
+            return $this->renderAjax('illustration', [
+                'illustration' => $illustration,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -73,9 +81,13 @@ class Illustration_document_revController extends Controller
      */
     public function actionView($id)
     {
-        return $this->renderAjax('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $model = $this->findModel($id);
+        if(User::userCanIllustrationRev($model->document->id_project)){
+            return $this->renderAjax('view', [
+                'model' => $model,
+            ]);
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
 
@@ -90,36 +102,39 @@ class Illustration_document_revController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post())) {
-            $file = UploadedFile::getInstance($model, "url");
-            if (!empty($file)) {
-                $modelIllustration = new Illustration();
-                $modelIllustration->id_project = $model->illustrationPlan->id_project;
-                $modelIllustration->save(false);
+        if(User::userCanIllustrationRev($model->document->id_project)){
+            if ($model->load(Yii::$app->request->post())) {
+                $file = UploadedFile::getInstance($model, "url");
+                if (!empty($file)) {
+                    $modelIllustration = new Illustration();
+                    $modelIllustration->id_project = $model->illustrationPlan->id_project;
+                    $modelIllustration->save(false);
 
-                $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
-                $file->saveAs('uploads/project/illustration_document/' . $address);
-                $modelIllustration->url = $address;
-                $modelIllustration->save(false);
-                $model->id_illustration = $modelIllustration->id_illustration;
+                    $address = $modelIllustration->id_illustration.' (Only).'.$file->extension;
+                    $file->saveAs('uploads/project/illustration_document/' . $address);
+                    $modelIllustration->url = $address;
+                    $modelIllustration->save(false);
+                    $model->id_illustration = $modelIllustration->id_illustration;
+                }
+
+                if ($model->reviewed == true)
+                    $model->reviewed = false;
+                else
+                    $model->reviewed = true;
+
+                if($model->save(false))
+                    return $model->document->docType->name;
+                else
+                    return "Error";
+            } else {
+                $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+
+                return $this->renderAjax('update', [
+                    'model' => $model,
+                ]);
             }
-
-            if ($model->reviewed == true)
-                $model->reviewed = false;
-            else
-                $model->reviewed = true;
-
-            if($model->save(false))
-                return $model->document->docType->name;
-            else
-                return "Error";
-        } else {
-            $this->view->registerCssFile(Yii::$app->homeUrl.'css/illustration_lemma_update.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
-
-            return $this->renderAjax('update', [
-                'model' => $model,
-            ]);
-        }
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -132,11 +147,13 @@ class Illustration_document_revController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->delete())
-            return "Ok";
-        else
-            return "Error";
+        if(User::userCanIllustrationRev($model->document->id_project)){
+            if ($model->delete())
+                return "Ok";
+            else
+                return "Error";
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     /**
@@ -152,6 +169,6 @@ class Illustration_document_revController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('La página pedida no existe.');
     }
 }

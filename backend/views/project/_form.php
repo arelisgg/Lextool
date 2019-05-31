@@ -143,8 +143,9 @@ use backend\models\Letter;
                                 'showRemove' => false,
                                 'initialPreview' => $model->isNewRecord || $model->plant_file == 'null' ? '' : Url::home() . "uploads/project/plant/". $model->plant_file,
                                 'overwriteInitial' => false,
-                                'allowedExtensions' => ['jpg', 'jpeg', 'png', 'doc', 'docx', 'pdf', 'xlsx', 'xls'],
+                                'allowedExtensions' => ['jpg', 'jpeg', 'png', 'doc', 'docx', 'odt', 'rtf', 'docm', 'pdf',],
                             ],
+                            'options'=>['accept'=>'.jpg,.jpeg,.png,.doc,.docx,.odt,.rtf,.docm,.pdf',],
                         ]) ?>
                     </div>
 

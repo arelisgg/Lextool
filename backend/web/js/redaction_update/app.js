@@ -859,6 +859,12 @@ var app = new Vue({
                             interval.prev = prev
                             elem_pos.prev.shift()
                         }
+                        else  {
+                            let before_prev = lex_article_elements[i - 1]
+                            if (before_prev !== undefined) {
+                                interval.prev = before_prev
+                            }
+                        }
                     }
                     if (elem_pos.next !== '') {
                         if (lex_article_elements[i + 1] !== undefined) {

@@ -36,7 +36,9 @@
         "kartik-v/yii2-widget-select2": "dev-master",
         "miloschuman/yii2-highcharts-widget": "^7.0",
         "kartik-v/yii2-widget-sidenav": "*",
-        "noam148/yii2-image-manager": "*"
+        "noam148/yii2-image-manager": "*",
+        "kartik-v/yii2-widget-fileinput": "dev-master",
+        "antkaz/yii2-vue": "~1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

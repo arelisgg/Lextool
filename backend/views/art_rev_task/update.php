@@ -5,11 +5,11 @@ VueAsset::register($this); // register VueAsset
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model backend\models\LexArticle */
+/* @var $lex_article backend\models\LexArticle */
 
-$this->title = 'Revisar artículo lexicográfico';
+$this->title = 'Revisión con derecho de edición: '.$lex_article->lemma->extracted_lemma;
 $this->params['breadcrumbs'][] = ['label' => 'Planes de revisión' , 'url' => ['art_rev_task/plans','id_project' => $project->id_project]];
-$this->params['breadcrumbs'][] = ['label' => 'Revisión de artículos lexicográficos' , 'url' => ['art_rev_task/indexedition','id_revision_plan' => $plan->id_revision_plan]];
+$this->params['breadcrumbs'][] = ['label' => 'Lemas' , 'url' => ['art_rev_task/indexedition','id_revision_plan' => $plan->id_revision_plan]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div id="id_project" class="hidden"><?= $project->id_project?></div>

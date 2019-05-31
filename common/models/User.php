@@ -501,4 +501,14 @@ class User extends ActiveRecord implements IdentityInterface
         return count($assings)>0 ? true : false;
     }
 
+    public static function userCanIllustrationLemma($id_project){
+        $assings = IllustrationPlan::findAll(['id_user' => Yii::$app->getUser()->identity->id_user, 'id_project' => $id_project, 'type' => "Lema", 'finished' => false]);
+        return count($assings)>0 ? true : false;
+    }
+
+    public static function userCanIllustrationDoc($id_project){
+        $assings = IllustrationPlan::findAll(['id_user' => Yii::$app->getUser()->identity->id_user, 'id_project' => $id_project, 'type' => "Documento Complementario", 'finished' => false]);
+        return count($assings)>0 ? true : false;
+    }
+
 }

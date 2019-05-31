@@ -19,23 +19,19 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="lex-article-view">
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-language"></i> <?= Html::encode($this->title) ?></h2>
+            <h2 class="box-title"><i class="fa fa-language"></i> <?= Html::encode($this->title) ?></h2>
+            <div class="pull-right">
+                <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['update', 'id' => $model->id_lex_article, 'id_redaction_plan' => $plan->id_redaction_plan], ['class' => ' btn btn-primary btn-sm']) ?>
+                <?= Html::a('<i class="glyphicon glyphicon-trash"></i>', ['delete', 'id' => $model->id_lex_article,], [
+                    'class' => 'btn btn-danger btn-sm',
+                    'data' => [
+                        'confirm' => '¿Está seguro de querer eliminar el artículo lexicográfico?',
+                        'method' => 'get',
+                    ],
+                ]) ?>
+            </div>
         </div>
         <div class="box-body">
-            <div class="row">
-                <div class="col-md-12">
-                    <p>
-                        <?= Html::a('Actualizar', ['update', 'id' => $model->id_lex_article, 'id_redaction_plan' => $plan->id_redaction_plan], ['class' => 'btn btn-primary']) ?>
-                        <?= Html::a('Eliminar', ['delete', 'id' => $model->id_lex_article, 'id_redaction_plan' => $plan->id_redaction_plan], [
-                            'class' => 'btn btn-danger',
-                            'data' => [
-                                'confirm' => '¿Está seguro de querer eliminar el artículo lexicográfico?',
-                                'method' => 'get',
-                            ],
-                        ]) ?>
-                    </p>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-12">
                     <ul class="list-group">

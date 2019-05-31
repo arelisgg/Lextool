@@ -58,9 +58,9 @@ $this->params['breadcrumbs'][] = ['label' => "Ilustraciones de documentos" , 'ur
             <div class="col-lg-9">
 
                 <?php DynamicFormWidget::begin([
-                    'widgetContainer' => 'illustration_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
-                    'widgetBody' => '.illustration_items', // required: css class selector
-                    'widgetItem' => '.illustration', // required: css class
+                    'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+                    'widgetBody' => '.container-items', // required: css class selector
+                    'widgetItem' => '.item', // required: css class
                     'limit' => 200, // the maximum times, an element can be cloned (default 999)
                     'min' => 1, // 0 or 1 (default 1)
                     'insertButton' => '.add-item', // css class
@@ -81,9 +81,9 @@ $this->params['breadcrumbs'][] = ['label' => "Ilustraciones de documentos" , 'ur
                     </div>
 
                     <div class="box-body" style="height: 675px; padding-left: 10px; overflow-y: auto; padding-bottom: 20px;">
-                        <div class="illustration_items"><!-- widgetContainer -->
+                        <div class="container-items"><!-- widgetContainer -->
                             <?php foreach ($modelIllustrations as $i => $modelIllustration): ?>
-                                <div class="illustration"><!-- widgetBody -->
+                                <div class="item"><!-- widgetBody -->
                                     <?php
                                     // necessary for update action.
                                     if (!$modelIllustration->isNewRecord) {

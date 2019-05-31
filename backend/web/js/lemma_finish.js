@@ -41,13 +41,6 @@ function finished(id){
         type: 'Get',
         data: {id:id},
         success:function(data){
-            if (data == 0){
-                $('#finished').html("No");
-                $('#finished_btn').html('<span class="glyphicon glyphicon-ok"></span> Aprobar');
-            } else {
-                $('#finished').html("Si");
-                $('#finished_btn').html('<span class="glyphicon glyphicon-remove"></span> Desaprobar');
-            }
 
         },
         fail: function(){alert("error")}

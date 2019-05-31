@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="lemma-view">
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-language"></i> <?= Html::encode($this->title) ?></h2>
+            <h2 class="box-title"><i class="fa fa-language"></i> <?= Html::encode($this->title) ?></h2>
             <div class="pull-right">
                 <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['update', 'id' => $model->id_lemma], ['class' => 'btn btn-primary btn-sm']) ?>
                 <?= Html::a('<i class="glyphicon glyphicon-trash"></i>', ['delete', 'id' => $model->id_lemma], [

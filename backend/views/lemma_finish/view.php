@@ -32,10 +32,22 @@ Modal::end();
 <div class="lemma-view">
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-language"></i> <?= $this->title ?></h2>
+            <h2 class="box-title"><i class="fa fa-language"></i> <?= $this->title ?></h2>
             <div class="pull-right">
-                <?=
-                Html::a('<span class="glyphicon glyphicon-trash"></span>', ['lemma_finish/delete', 'id' => $model->id_lemma], [
+                <?php
+
+                if ($model->finished) {
+                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desaprobar',
+                            ['finished', 'id' => $model->id_lemma],
+                            ['class' => ' btn btn-danger btn-sm', "title"=>"Desaprobar"]
+                        ). " ";
+                } else {
+                    echo Html::a('<span class="glyphicon glyphicon-ok"></span> Aprobar',
+                            ['finished', 'id' => $model->id_lemma],
+                            ['class' => ' btn btn-primary btn-sm', "title"=>"Aprobar"]
+                        ). " ";
+                }
+                echo Html::a('<span class="glyphicon glyphicon-trash"></span>', ['lemma_finish/delete', 'id' => $model->id_lemma], [
                     'data' => [
                         'confirm' => '¿Está seguro de eliminar este lema por completo?',
                         'method' => 'post',
@@ -136,11 +148,11 @@ Modal::end();
                                 <?= $model->finished
                                     ? Html::button('<span class="glyphicon glyphicon-remove"></span> Desaprobar', [
                                         'onclick' => 'finished("'.$model->id_lemma.'")',
-                                        "title"=>"Ver", 'class' => 'btn btn-link', 'id' => 'finished_btn'
+                                        "title"=>"Desaprobar", 'class' => 'btn btn-link', 'id' => 'finished_btn'
                                     ])
                                     : Html::button('<span class="glyphicon glyphicon-ok"></span> Aprobar', [
                                         'onclick' => 'finished("'.$model->id_lemma.'")',
-                                        "title"=>"Ver", 'class' => 'btn btn-link', 'id' => 'finished_btn'
+                                        "title"=>"Aprobar", 'class' => 'btn btn-link', 'id' => 'finished_btn'
                                     ]) ?>
                             </p>
                         </li>

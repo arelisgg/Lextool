@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'buttons' => [
                     'review' => function ($url,$model,$key) use ($revision_plan){
                         return Html::a('<span class="fa fa-eraser"></span>',
-                            ['art_rev_task/revitionnoedition', 'id_lemma' => $model->id_lemma, 'id_revision_plan' => $revision_plan->id_revision_plan], ["title"=>"Revisar"]);
+                            ['art_rev_task/revitionnoedition', 'id_lemma' => $model->id_lemma, 'id_revision_plan' => $revision_plan->id_revision_plan], ["title"=>"Revisar", 'data-pjax' => 0]);
                     },
                 ],
             ],
@@ -79,7 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'heading' => '<h3 class="panel-title"><i class="fa fa-eraser"></i> '. $this->title.' del '. $project->name.'</h3>',
         ],
         'toolbar'=>[
-            Html::a('<span class="fa fa-check"></span> Finalizar Tarea',
+            Html::a('<span class="fa fa-check"></span> Finalizar tarea',
                 ['art_rev_task/finish', 'id_revision_plan'=>$revision_plan->id_revision_plan],
                 ['data-pjax' => 0, 'class' => 'btn btn-primary pull-left', 'title'=>'Finalizar Tarea']),
             '{export}',

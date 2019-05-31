@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h2 class="box-title" style="text-transform: capitalize"><i class="fa fa-language"></i> <?= $this->title ?></h2>
+            <h2 class="box-title"><i class="fa fa-language"></i> <?= $this->title ?></h2>
             <div class="pull-right">
             <?php
 

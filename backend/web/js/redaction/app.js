@@ -839,6 +839,13 @@ var app = new Vue({
                             interval.prev = prev
                             elem_pos.prev.shift()
                         }
+                        else  {
+                            let before_prev = lex_article_elements[i - 1]
+                            if (before_prev !== undefined) {
+                                interval.prev = before_prev
+                            }
+                        }
+
                     }
                     if (elem_pos.next !== '') {
                         if (lex_article_elements[i + 1] !== undefined) {
@@ -869,6 +876,8 @@ var app = new Vue({
                         result.push(interval)
                         index++
                     }
+
+
 
                     if (result.length > 0 ) {
                         result[0].active = true
@@ -1005,6 +1014,7 @@ var app = new Vue({
                         return current
                     }
 
+<<<<<<< HEAD
                     let elements = []
 
                     for (let element in current_sub_model.elements) {
@@ -1016,11 +1026,21 @@ var app = new Vue({
                         let elem = elements.pop()
 
                         if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model) && result === '') {
+=======
+                    for (let i = current_sub_model.elements.length; !stop && i > 0; i--) {
+                        let elem = current_sub_model.elements[i - 1]
+                        if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+>>>>>>> b2b81019d30c7339417122361c9f83bed33fab47
                             let lex_article_elements = this.lex_article_elements
                             for (let key in lex_article_elements){
                                 if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
                                     && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
                                     result = lex_article_elements[key]
+<<<<<<< HEAD
+=======
+                                    stop = true
+                                    break
+>>>>>>> b2b81019d30c7339417122361c9f83bed33fab47
                                 }
                             }
                         }
@@ -1028,6 +1048,7 @@ var app = new Vue({
 
                     let prev_sub_model = sub_models.pop()
 
+<<<<<<< HEAD
                     if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model) && result === '') {
 
                         let elements = []
@@ -1041,6 +1062,12 @@ var app = new Vue({
                             let elem = elements.pop()
 
                             if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model) && result === '') {
+=======
+                    if (prev_sub_model !== undefined && this.subModelWasAssigned(prev_sub_model) && !stop) {
+                        for (let i = prev_sub_model.elements.length; !stop && i > 0; i--) {
+                            let elem = prev_sub_model.elements[i - 1]
+                            if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+>>>>>>> b2b81019d30c7339417122361c9f83bed33fab47
                                 let lex_article_elements = this.lex_article_elements
                                 for (let key in lex_article_elements){
                                     if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
@@ -1147,7 +1174,11 @@ var app = new Vue({
                         let sub_model_id = sub_model.id_sub_model
 
                         let sub_model_separator = document.querySelector('li.sub_model_element.selected');
+<<<<<<< HEAD
                         let sub_model_separator_sibling = sub_model_separator.previousElementSibling
+=======
+                        let sub_model_separator_sibling = sub_model_separator.previousElementSibling.previousElementSibling;
+>>>>>>> b2b81019d30c7339417122361c9f83bed33fab47
 
                         if (sub_model_separator_sibling !== undefined && sub_model_separator_sibling !== null){
                             if (sub_model_separator_sibling.className === 'sub_model_separator') {
@@ -1190,8 +1221,12 @@ var app = new Vue({
                             this.create_element_data.text = ''
 
                             this.empty_autocomplete = true
+<<<<<<< HEAD
 
                             this.type = ''
+=======
+                            this.element_order += 1
+>>>>>>> b2b81019d30c7339417122361c9f83bed33fab47
                         })
                     }
                     else if ((interval.prev !== undefined || interval.next !== undefined ) && (interval.prev !== '' || interval.next !== '')) {

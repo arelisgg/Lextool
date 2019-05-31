@@ -146,7 +146,7 @@ class RevisionPlan extends \yii\db\ActiveRecord
     public function getSubModels()
     {
         $submodels = SubModel::find()
-            ->innerJoin('redaction_plan_submodel', 'redaction_plan_submodel.id_sub_model = sub_model.id_sub_model')
+            ->innerJoin('revision_plan_submodel', 'revision_plan_submodel.id_sub_model = sub_model.id_sub_model')
             ->orderBy('order')->all();
         return $submodels;
     }

@@ -67,8 +67,8 @@ use dosamigos\datepicker\DateRangePicker;
     <?= $form->field($model,'type')->widget(Select2::className(),[
         'data' => ['Normal'=>'Normal', 'Léxica'=>'Léxica'],
         'options' => [
-                'placeholder' => 'Seleccione...',
-            'onChange'=>'tipo()',
+            'placeholder' => 'Seleccione...',
+            'onchange'=>'tipo()',
         ],
         'language' => 'es',
         'pluginOptions' => [
@@ -86,7 +86,7 @@ use dosamigos\datepicker\DateRangePicker;
         'pluginOptions' => [
             'allowClear' => true,
         ],
-        'disabled' => $model->type == 'Normal' ? false : true,
+        //'disabled' => $model->type == 'Normal' ? false : true,
     ]) ?>
 
     <?= $form->field($model,'criterias')->widget(Select2::className(),[
@@ -96,7 +96,7 @@ use dosamigos\datepicker\DateRangePicker;
             'allowClear' => true,
             'multiple' => true,
         ],
-        'disabled' => $model->edition == 0 ? true : false,
+        //'disabled' => $model->edition == 0 ? true : false,
     ]);
     ?>
 
@@ -110,7 +110,7 @@ use dosamigos\datepicker\DateRangePicker;
             'allowClear' => true,
             'multiple' => true,
         ],
-        'disabled' => $model->edition === 0 || $model->type == 'Normal' ? true : false,
+        //'disabled' => $model->type == 'Normal' || $model->edition == 0 ? true : false,
     ]);
     ?>
 
@@ -156,5 +156,10 @@ use dosamigos\datepicker\DateRangePicker;
             krajeeDialogError.alert("Error")
         });
         return false;
+    });
+
+    $(document).ready(function() {
+        tipo();
+        // edicion();
     });
 </script>
