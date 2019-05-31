@@ -614,7 +614,7 @@ var app = new Vue({
         },
         elemPosInSubModel: function (id_element, id_sub_model) {
             let elem_pos = {
-                prev: '',
+                prev: [],
                 current: '',
                 next: ''
             }
@@ -624,18 +624,26 @@ var app = new Vue({
             let stop = false
 
             for (let i = 0; i < sub_models.length && !stop; i++) {
+
+                if (sub_models[i + 1] !== undefined && sub_models[i + 1].id_sub_model === id_sub_model) {
+                    let current_sub_model = sub_models[i]
+
+                    let last_element = _.last(current_sub_model.elements)
+
+                    elem_pos.prev.push(last_element)
+                }
+
                 if (sub_models[i].id_sub_model === id_sub_model) {
                     let current_sub_model = sub_models[i]
-                    for (let j = 0; j < current_sub_model.elements.length && !stop;j++) {
+                    for (let j = 0; j < current_sub_model.elements.length;j++) {
                         let element = current_sub_model.elements[j]
 
                         if (element.id_element === id_element && j === 0){
                             elem_pos.current = element
-                            elem_pos.prev = current_sub_model.elements[current_sub_model.elements.length - 1]
-                            stop = true
+                            elem_pos.prev.push(current_sub_model.elements[current_sub_model.elements.length - 1])
                         }else if (element.id_element === id_element && j > 0) {
                             elem_pos.current = element
-                            elem_pos.prev = current_sub_model.elements[j - 1]
+                            elem_pos.prev.push(current_sub_model.elements[j - 1])
                             if ((j + 1) < current_sub_model.elements.length) {
                                 elem_pos.next = current_sub_model.elements[j + 1]
                             }
@@ -645,6 +653,18 @@ var app = new Vue({
             }
 
             return elem_pos
+        },
+        getLastLexArticleRedacted (id_element, id_sub_model) {
+            let lex_article_elements = this.lex_article_elements;
+
+            for (let i = lex_article_elements.length - 1; i > 0; i--) {
+                if (parseFloat(lex_article_elements[i].lex_article_element.id_element) === parseFloat(id_element)
+                    && parseFloat(lex_article_elements[i].lex_article_element.id_sub_model) === parseFloat(id_sub_model))  {
+                    return lex_article_elements[i]
+                }
+            }
+
+            return undefined
         },
         getMultipleIntervalElements: function (current,data) {
             let sub_models = this.model.sub_model
@@ -659,6 +679,7 @@ var app = new Vue({
             let result = []
 
             if (this.verifyIfWasRedacted(data.lex_article_element.id_element,data.lex_article_element.id_sub_model)) {
+
                 let elem_pos = this.elemPosInSubModel(data.element.id_element, data.sub_model.id_sub_model)
 
                 let index = 1
@@ -676,24 +697,32 @@ var app = new Vue({
                     let prev = ''
                     let next = ''
 
-                    if (elem_pos.prev !== '') {
+                    let prev_element = ''
+
+                    if (elem_pos.prev.length > 0) {
+                        prev_element = _.first(elem_pos.prev)
+
                         prev = lex_article_elements[i]
 
-                        if (parseFloat(prev.lex_article_element.id_element)  === elem_pos.prev.id_element
-                            && parseFloat(prev.lex_article_element.id_sub_model) === elem_pos.prev.id_sub_model) {
+                        let last_redacted = this.getLastLexArticleRedacted(prev_element.id_element,prev_element.id_sub_model)
+
+                        if (last_redacted !== undefined) {
 
                             if (lex_article_elements[i + 1] !== undefined) {
                                 next = lex_article_elements[i + 1]
-                                if (parseFloat(next.element.id_element)  !== data.element.id_element) {
-                                    interval.prev = prev
+                                if (parseFloat(next.element.id_element) !== data.element.id_element) {
+                                    interval.prev = last_redacted
+                                    elem_pos.prev.shift()
                                 }
                             }
                         }
-                        if (parseFloat(prev.lex_article_element.id_element)  === elem_pos.prev.id_element
-                            && parseFloat(lex_article_elements[i].lex_article_element.id_sub_model) === elem_pos.prev.id_sub_model
+                        if (parseFloat(prev.lex_article_element.id_element)  === prev_element.id_element
+                            && parseFloat(lex_article_elements[i].lex_article_element.id_sub_model) === prev_element.id_sub_model
                             && (lex_article_elements[i + 1] === undefined
-                                || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== elem_pos.prev.id_sub_model) ) {
+                                || parseFloat(lex_article_elements[i + 1].lex_article_element.id_sub_model) !== prev_element.id_sub_model)
+                            && interval.prev === '') {
                             interval.prev = prev
+                            elem_pos.prev.shift()
                         }
                     }
                     if (elem_pos.next !== '') {
@@ -852,9 +881,7 @@ var app = new Vue({
 
             let result = ''
 
-            let stop = false
-
-            while (sub_models.length > 0 && !stop) {
+            while (sub_models.length > 0 && result === '') {
                 let current_sub_model = sub_models.pop()
 
                 if (current_sub_model.id_sub_model === current.id_sub_model) {
@@ -863,39 +890,103 @@ var app = new Vue({
                         return current
                     }
 
+                    let elements = []
+
+                    for (let element in current_sub_model.elements) {
+                        elements.push(current_sub_model.elements[element])
+                    }
+
+                    while(elements.length > 0 && result === '') {
+
+                        let elem = elements.pop()
+
+                        if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model) && result === '') {
+                            let lex_article_elements = this.lex_article_elements
+                            for (let key in lex_article_elements){
+                                if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                    && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                    result = lex_article_elements[key]
+                                }
+                            }
+                        }
+                    }
+
                     let prev_sub_model = sub_models.pop()
 
-                    if (prev_sub_model !== undefined) {
-                        for (let i = prev_sub_model.elements.length - 1; !stop && i > 0; i--) {
-                            let elem = prev_sub_model.elements[i]
-                            if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+                    if (prev_sub_model !== undefined  && result === '') {
+
+                        let elements = []
+
+                        for (let element in prev_sub_model.elements) {
+                            elements.push(prev_sub_model.elements[element])
+                        }
+
+                        while (elements.length > 0 && result === '') {
+
+                            let elem = elements.pop()
+
+                            if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model) && result === '') {
                                 let lex_article_elements = this.lex_article_elements
                                 for (let key in lex_article_elements){
                                     if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
                                         && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
                                         result = lex_article_elements[key]
-                                        stop = true
-                                        break
                                     }
                                 }
                             }
                         }
-                        if (!stop) {
-                            while (sub_models.length > 0 && !stop) {
+
+                        if (result === '') {
+                            while (sub_models.length > 0 && result === '') {
                                 let prev_sub_model = sub_models.pop()
 
-                                if (prev_sub_model !== undefined) {
-                                    for (let i = prev_sub_model.elements.length && !stop; i > 0; i--) {
-                                        let elem = prev_sub_model.elements[i - 1]
-                                        if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+                                if (prev_sub_model !== undefined && result === '') {
+
+                                    let elements = []
+
+                                    for (let element in prev_sub_model.elements) {
+                                        elements.push(prev_sub_model.elements[element])
+                                    }
+
+                                    while (elements.length > 0 && result === ''){
+
+                                        let elem = elements.pop()
+
+                                        if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model) && result === '') {
                                             let lex_article_elements = this.lex_article_elements
                                             for (let key in lex_article_elements){
                                                 if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
                                                     && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
                                                     result = lex_article_elements[key]
-                                                    stop = true
-                                                    break
+
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }else {
+                        while (sub_models.length > 0 && result === '') {
+                            let prev_sub_model = sub_models.pop()
+
+                            if (prev_sub_model !== undefined && result === '') {
+
+                                let elements = []
+
+                                for (let element in prev_sub_model.elements) {
+                                    elements.push(prev_sub_model.elements[element])
+                                }
+
+                                while (elements.length > 0 && result === '') {
+                                    let elem = elements.pop()
+                                    if (this.verifyIfWasRedacted(elem.id_element, elem.id_sub_model)) {
+                                        let lex_article_elements = this.lex_article_elements
+                                        for (let key in lex_article_elements){
+                                            if (parseFloat(lex_article_elements[key].lex_article_element.id_element) === elem.id_element
+                                                && parseFloat(lex_article_elements[key].lex_article_element.id_sub_model) === elem.id_sub_model){
+                                                result = lex_article_elements[key]
+
                                             }
                                         }
                                     }
