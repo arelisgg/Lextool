@@ -171,7 +171,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                 <form @submit.prevent="onSubmit(element)">
                                                     <input type="hidden" name="_csrf-backend" value="sfZV2JPu9gsYrP390yKjq61gGeHWTYKZF7XkIcWp4FbEoDjhyY-3bX7zq7KUU5blgCZ_tKUK8Mt8goVUps6Wbg==">
 
-                                                    <div class="col-md-12" v-show="element.type !== 'Acepción' || element.type !== 'acepción'">
+                                                    <div class="col-md-12" v-show="element.type !== 'Acepción'">
                                                         <label for="sub_element">Sub-Tipos: </label>
                                                         <select id="sub_element" class="form-control" name="sub_element" title="Sub-Tipo" v-model="create_element_data.sub_type">
                                                             <option value=""></option>
@@ -184,7 +184,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <div class="col-md-12 margin-top-20">
                                                         <label for="article">Redacción</label>
                                                         <input v-if="element.type === 'División Silábica' || element.type === 'División silábica'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
-                                                        <input v-else-if="element.type === 'Acepción' || element.type === 'acepción'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
+                                                        <input v-else-if="element.type === 'Acepción'" id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text">
                                                         <textarea v-else id="article" class="form-control" v-model="create_element_data.text" :placeholder="create_element_data.text" rows="5"></textarea>
                                                     </div>
 
@@ -208,7 +208,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <ul id="lexicographical_element">
                                                         <lex-article-element
                                                                 :key="element.lex_article_element.id_lex_article_element"
-                                                                v-if="element.element !== undefined && (element.element.visibility || element.sub_element.visibility)"
+                                                                v-if="element.element !== undefined"
                                                                 :lex_article_elements="lex_article_elements"
                                                                 :element="element"
                                                                 :sub_models_plan="sub_models_plan"
