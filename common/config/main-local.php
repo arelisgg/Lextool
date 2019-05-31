@@ -9,7 +9,7 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'pgsql:host=localhost;port=5432;dbname=lextool',
+            'dsn' => 'pgsql:host=localhost;port=5432;dbname=lextool_test',
             'username' => 'postgres',
             'password' => 'POSTGRES',
             'charset' => 'utf8',

@@ -299,15 +299,15 @@ $this->params['breadcrumbs'][] = $this->title;
                                                 </li>
                                             </ul>
 
-                                            <div id="dictionary" class="fade modal" role="dialog" tabindex="-1" style="display: none;">
+                                            <div id="dictionary" class="fade modal" role="dialog" tabindex="-1" style="display: none; overflow-y: hidden;">
                                                 <div class="modal-dialog modal-full">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                            <h2 id="dictionary-title">{{ dictionary.name }}</h2>
+                                                            <h3 id="dictionary-title">{{ dictionary.name }}</h3>
                                                         </div>
-                                                        <div class="modal-body">
-                                                            <iframe :src="dictionary.link" width="100%" height="100%"></iframe>
+                                                        <div class="modal-body" style="overflow-y: auto; height: 400px; width: 100%;">
+                                                            <iframe :src="dictionary.link" width="100%" height="700px"></iframe>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
