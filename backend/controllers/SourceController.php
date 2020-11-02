@@ -21,6 +21,7 @@ use yii\web\View;
  */
 class SourceController extends Controller
 {
+    public $enableCsrfValidation = false;
     /**
      * {@inheritdoc}
      */
@@ -42,7 +43,7 @@ class SourceController extends Controller
      */
     public function actionIndex($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+//        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $searchModel = new SourceSearch();
             $searchModel->id_project = $id_project;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -53,8 +54,8 @@ class SourceController extends Controller
                 'model' => $this->findModelProject($id_project),
 
             ]);
-        } else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        } else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
 
@@ -84,7 +85,7 @@ class SourceController extends Controller
      */
     public function actionCreate($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+//        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $model = new Source();
             $model->id_project = $id_project;
             $model->scenario = "create";
@@ -112,8 +113,8 @@ class SourceController extends Controller
                     'model' => $model,
                 ]);
             }
-        } else
-            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+//        } else
+//            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
     private function createSourceLetter($model){

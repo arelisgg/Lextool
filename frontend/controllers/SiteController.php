@@ -21,6 +21,7 @@ use yii\web\View;
  */
 class SiteController extends Controller
 {
+    public $enableCsrfValidation = false;
     /**
      * {@inheritdoc}
      */
