@@ -48,7 +48,7 @@ AppAsset::register($this);
         if(!$isGuest){
         $projects = Yii::$app->user->identity->projects;
         foreach ($projects as $project){
-            $item = '<li><a href="/lextool/backend/web/project/detail?id='.$project->id_project.'"><i class="fa fa-genderless"></i>'.$project->name.'</a></li>';
+            $item = '<li><a href="../web/project/detail?id='.$project->id_project.'"><i class="fa fa-genderless"></i>'.$project->name.'</a></li>';
             array_push($items,$item);
         }
     }
