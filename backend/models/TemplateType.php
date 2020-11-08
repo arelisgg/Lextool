@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "template_type".
  *
  * @property int $id_template_type
- * @property string $type
+ * @property string $name
  * @property bool $removed
  *
  * @property Project[] $projects
@@ -29,8 +29,8 @@ class TemplateType extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['type'], 'string'],
-            [['type'], 'required'],
+            [['name'], 'string'],
+            [['name'], 'required'],
             [['removed'], 'boolean'],
         ];
     }
@@ -42,7 +42,7 @@ class TemplateType extends \yii\db\ActiveRecord
     {
         return [
             'id_template_type' => 'Id Template Type',
-            'type' => 'Plantilla',
+            'name' => 'Plantilla',
             'removed' => 'removed',
         ];
     }

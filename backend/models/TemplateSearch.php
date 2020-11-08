@@ -1,0 +1,81 @@
+<?php
+
+namespace backend\models;
+
+use yii\base\Model;
+use yii\data\ActiveDataProvider;
+use backend\models\Templates;
+
+/**
+ * SubModelSearch represents the model behind the search form of `backend\models\SubModel`.
+ */
+class TemplateSearchSearch extends Templates
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['id_template', 'id_project'], 'integer'],
+            [['name'],'safe'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function scenarios()
+    {
+        // bypass scenarios() implementation in the parent class
+        return Model::scenarios();
+    }
+
+    /**
+     * Creates data provider instance with search query applied
+     *
+     * @param array $params
+     *
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        $query = \backend\models\Templates::find();
+
+        // add conditions that should always apply here
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $this->load($params);
+
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
+        }
+        $query->joinWith('template')
+            ->innerJoin('template_type', 'template_type.id_template_type = template.id_template_type');
+
+        if ($this->name != ''){
+            $query->andWhere("template.name ilike '%".$this->name."%' OR template_type.name ilike '%".$this->name."%'");
+        }
+
+        // grid filtering conditions
+        $query->andFilterWhere([
+            'id_template' => $this->id_template,
+            'template.id_project' => $this->id_project,
+        ]);
+
+
+
+        $dataProvider->setSort([
+            'attributes'=>[
+                'name',
+            ],
+        ]);
+
+        return $dataProvider;
+    }
+}
