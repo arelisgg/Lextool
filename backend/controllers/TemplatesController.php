@@ -112,7 +112,6 @@ class TemplatesController extends Controller
                     }
                     $order--;
                 }
-
                 return $this->redirect(['index', 'id_project' => $id_project]);
             }
 
@@ -135,14 +134,14 @@ class TemplatesController extends Controller
     }
 
     /**
-     * Updates an existing SubModel model.
+     * Updates an existing Template model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param $id_project
      * @return mixed
      * @throws Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionUpdate($id_project)
+    public function actionUpdate($id_project, $id_template)
     {
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $project = Project::findOne($id_project);
