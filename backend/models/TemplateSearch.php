@@ -7,9 +7,9 @@ use yii\data\ActiveDataProvider;
 use backend\models\Templates;
 
 /**
- * SubModelSearch represents the model behind the search form of `backend\models\SubModel`.
+ * SubModelSearch represents the model behind the search form of `backend\models\Templates`.
  */
-class TemplateSearchSearch extends Templates
+class TemplateSearch extends Templates
 {
     /**
      * {@inheritdoc}

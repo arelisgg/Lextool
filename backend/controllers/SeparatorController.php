@@ -5,6 +5,7 @@ namespace backend\controllers;
 use backend\assets\AppAsset;
 use backend\models\ElementSeparator;
 use backend\models\Project;
+use backend\models\Templates;
 use backend\models\SubModelSeparator;
 use common\models\User;
 use Yii;

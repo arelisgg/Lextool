@@ -350,6 +350,9 @@ function nombrarCrear(i){
             break;
         case '22':
             $('.modelo').text('Agregar tarea al plan de confección de documentos');
+            break;
+        case '23':
+            $('.modelo').text('Crear Tipo de plantilla');
     }
 }
 
@@ -421,6 +424,9 @@ function nombrarVer(i){
             break;
         case '22':
             $('.modelo').text('Ver tarea del plan de confección de documentos');
+            break;
+        case '23':
+            $('.modelo').text('Ver Tipo de plantilla');
     }
 }
 
@@ -492,6 +498,9 @@ function nombrarEditar(i){
             break;
         case '22':
             $('.modelo').text('Editar tarea del plan de confección de documentos');
+            break;
+        case '23':
+            $('.modelo').text('Editar Tipo de plantilla');
     }
 }
 

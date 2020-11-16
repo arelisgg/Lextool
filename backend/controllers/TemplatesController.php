@@ -79,13 +79,13 @@ class TemplatesController extends Controller
      * @throws NotAcceptableHttpException
      */
     public function actionCreate($id_project)
-    {
+    { $template= new Templates();
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $project = Project::findOne($id_project);
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
             $separators = Separator::find()->where(['id_project'=> $id_project,'scope' => ["Componente"]])->all();
 
-            if (Yii::$app->request->post()) {
+            if (Yii::$app->request->post() && $template->save()) {
                 $posts = Yii::$app->request->post();
 
                 $posts = array_reverse($posts);
@@ -95,15 +95,19 @@ class TemplatesController extends Controller
                 $id_submodel = "";
 
                 foreach ($posts as $key => $value) {
-
                     $key_val = explode('-',$key);
 
                     if ($key_val[0] == "submodel") {
                         $submodel = SubModel::findOne($value);
                         $submodel->order = $order;
+                        $submodel->id_template = $template->id_template;
                         $submodel->save();
                         $id_submodel = $submodel->id_sub_model;
+
                     } else if ($key_val[0] == "separator") {
+                        $separator= Separator::findOne($value);
+                        $separator->id_template = $template->id_template;
+                        $separator-> save();
                         $submodel_separator = new SubModelSeparator();
                         $submodel_separator->id_separator = $value;
                         $submodel_separator->id_sub_model = $id_submodel;
