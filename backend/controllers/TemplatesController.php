@@ -49,7 +49,7 @@ class TemplatesController extends Controller
     }
 
     /**
-     * Lists all SubModel models.
+     * Lists all Templates models.
      * @param $id_project
      * @return mixed
      * @throws NotAcceptableHttpException
@@ -72,20 +72,23 @@ class TemplatesController extends Controller
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
     /**
-     * Creates a new SubModel model.
+     * Creates a new Templates model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @param $id_project
      * @return mixed
      * @throws NotAcceptableHttpException
      */
     public function actionCreate($id_project)
-    { $template= new Templates();
+    {
+        $model= new Templates();
+        $project = Project::findOne($id_project);
+
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
-            $project = Project::findOne($id_project);
+
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
             $separators = Separator::find()->where(['id_project'=> $id_project,'scope' => ["Componente"]])->all();
 
-            if (Yii::$app->request->post() && $template->save()) {
+            if (Yii::$app->request->post() && $model->save()) {
                 $posts = Yii::$app->request->post();
 
                 $posts = array_reverse($posts);
@@ -100,13 +103,13 @@ class TemplatesController extends Controller
                     if ($key_val[0] == "submodel") {
                         $submodel = SubModel::findOne($value);
                         $submodel->order = $order;
-                        $submodel->id_template = $template->id_template;
+                        $submodel->id_template = $model->id_template;
                         $submodel->save();
                         $id_submodel = $submodel->id_sub_model;
 
                     } else if ($key_val[0] == "separator") {
                         $separator= Separator::findOne($value);
-                        $separator->id_template = $template->id_template;
+                        $separator->id_template = $model->id_template;
                         $separator-> save();
                         $submodel_separator = new SubModelSeparator();
                         $submodel_separator->id_separator = $value;
@@ -131,14 +134,14 @@ class TemplatesController extends Controller
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
 
-            return $this->render('create', compact('project','submodels','separators'));
+            return $this->render('create', array( 'model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators ));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
 
     /**
-     * Updates an existing Template model.
+     * Updates an existing Templates model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param $id_project
      * @return mixed
@@ -236,7 +239,7 @@ class TemplatesController extends Controller
     }
 
     /**
-     * Deletes an existing SubModel model.
+     * Deletes an existing Templates model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id_project
      * @return mixed

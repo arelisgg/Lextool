@@ -122,7 +122,7 @@ $this->params['breadcrumbs'][] = $this->title;
                <div class="col-md-12">
                     <div class="text-center">
                        <h1 style="font-weight: bold">Crear modelo de artículo</h1>
-                       <a id="create-link" href="'.Url::to(['/general_model/create', 'id_project' => $project->id_project]).'"><i id="create-icon" class="fa fa-plus-circle fa-5x"></i></a> 
+                       <a id="create-link" href="'.Url::to(['/templates/create', 'id_project' => $project->id_project]).'"><i id="create-icon" class="fa fa-plus-circle fa-5x"></i></a> 
                     </div>
                </div>
             </div></div>
