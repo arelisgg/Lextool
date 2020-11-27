@@ -5,14 +5,15 @@ use yii\widgets\ActiveForm;
 use backend\models\Templates;
 use yii\widgets\Breadcrumbs;
 use backend\models\TemplateType;
+use backend\models\SubModel;
 
 /* @var $this yii\web\View */
 /* @var $model backend\models\Templates */
 /* @var $form yii\widgets\ActiveForm */
 
-$this->title = 'Crear modelo de artículo';
+$this->title = 'Crear Plantilla';
 //$this->params['breadcrumbs'][] = ['label' => $project->name , 'url' => ['project/view','id' => $project->id_project]];
-$this->params['breadcrumbs'][] = ['label' => 'Modelo de artículo', 'url' => ['index','id_project' => $project->id_project]];
+$this->params['breadcrumbs'][] = ['label' => 'Plantilla', 'url' => ['index','id_project' => $project->id_project]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div id="id_project" class="hidden"><?=$project->id_project?></div>
@@ -45,17 +46,21 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
             <div class="row">
                 <div class="col-md-12">
-                   <?= $form ->field($model, 'name')->textInput(['maxlenght'=>true])?>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <?= $form ->field($model, 'id_template_type')->dropDownList(ArrayHelper::map(TemplateType::find()->all(),'id_template_type', 'name'))?>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <button class="btn btn-success margin-top-10 margin-bottom-30" type="submit"> Guardar</button>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <p class="box-title"><i class="fa fa-list"></i> Datos de la plantilla</p>
+                        </div>
+                        <div class="box-body">
+                            <?= $form->field($model,'id_project')->hiddenInput(['value' => $project->id_project])->label(false) ?>
+
+                            <?= $form->field($model,'name')->textInput(); ?>
+
+                            <?= $form ->field($model, 'id_template_type')->dropDownList(ArrayHelper::map(TemplateType::find()->all(),'id_template_type', 'name'))?>
+
+                            <button class="btn btn-success margin-top-10 margin-bottom-30" type="submit"> Guardar</button>
+                        </div>
+
+                    </div>
                 </div>
             </div>
             <?php
@@ -91,6 +96,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="box-body">
                             <ul id="submodels" class="block__list block__list_words">
                                 <?php
+                                $submodels = SubModel::find()->where(['id_project' =>$project->id_project])->all();
                                 foreach ($submodels as $submodel) {
                                     if (!$submodel->repeat && $submodel->required) {
                                         echo '<li class="only-required" id="'.$submodel->id_sub_model.'">

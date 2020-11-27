@@ -67,7 +67,7 @@ $(document).ready(function () {
         $("#separator").attr('href', url+"/separator/index?id_project="+id);
         $("#element").attr('href', url+"/element/index?id_project="+id);
         $("#sub_model").attr('href', url+"/sub_model/index?id_project="+id);
-        $("#general_model").attr('href', url+"/general_model/index?id_project="+id);
+        $("#general_model").attr('href', url+"/templates/index?id_project="+id);
 
         //Lemas
         $("#lemma_ext_plan").attr('href', url+"/lemma_ext_plan/index?id_project="+id);
