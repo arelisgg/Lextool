@@ -12,7 +12,7 @@ use Yii;
  * @property string $representation
  * @property string $scope
  * @property int $id_project
- *@property int $id_template
+ *
  *
  * @property Project $project
  */
@@ -38,11 +38,7 @@ class Separator extends \yii\db\ActiveRecord
             [['id_project'], 'integer'],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
-            [['id_template', 'name'], 'required'],
-            [['id_template', 'order'], 'default', 'value' => null],
-            [['id_template', 'order'], 'integer'],
-            [['id_template'], 'exist', 'skipOnError' => true, 'targetClass' => Templates::className(), 'targetAttribute' => ['id_template' => 'id_template']],
-        ];
+             ];
     }
 
     /**
@@ -56,7 +52,6 @@ class Separator extends \yii\db\ActiveRecord
             'representation' => 'Representación',
             'scope' => 'Alcance',
             'id_project' => 'Id Project',
-            'id_template' => 'Id Templates',
         ];
     }
 

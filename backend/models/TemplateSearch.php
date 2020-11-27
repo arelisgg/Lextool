@@ -7,7 +7,7 @@ use yii\data\ActiveDataProvider;
 use backend\models\Templates;
 
 /**
- * SubModelSearch represents the model behind the search form of `backend\models\Templates`.
+ * TemplateSearch represents the model behind the search form of `backend\models\Templates`.
  */
 class TemplateSearch extends Templates
 {
@@ -55,8 +55,6 @@ class TemplateSearch extends Templates
             // $query->where('0=1');
             return $dataProvider;
         }
-        $query->joinWith('template')
-            ->innerJoin('template_type', 'template_type.id_template_type = template.id_template_type');
 
         if ($this->name != ''){
             $query->andWhere("template.name ilike '%".$this->name."%' OR template_type.name ilike '%".$this->name."%'");
@@ -65,7 +63,7 @@ class TemplateSearch extends Templates
         // grid filtering conditions
         $query->andFilterWhere([
             'id_template' => $this->id_template,
-            'template.id_project' => $this->id_project,
+            'id_project' => $this->id_project,
         ]);
 
 

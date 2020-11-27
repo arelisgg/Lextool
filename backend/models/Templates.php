@@ -46,8 +46,8 @@ class Templates extends \yii\db\ActiveRecord
     {
         return [
             [['id_project', 'name'], 'required'],
-            [['id_project', 'order'], 'default', 'value' => null],
-            [['id_project', 'order'], 'integer'],
+            [['id_project'], 'default', 'value' => null],
+            [['id_project'], 'integer'],
             [['name'],'string'],
             //[['id_project', 'name'], 'unique', 'targetAttribute' => ['id_project', 'name']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
@@ -66,7 +66,7 @@ class Templates extends \yii\db\ActiveRecord
             'id_template' => 'Id template',
             'id_project' => 'Id Project',
             'name' => 'Nombre de la plantilla',
-            'id_template_type' => 'Id template type',
+            'id_template_type' => 'Tipo de plantilla',
         ];
     }
 
