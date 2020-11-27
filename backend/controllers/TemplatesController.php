@@ -11,6 +11,9 @@ use backend\models\Separator;
 use backend\models\SubModelElement;
 use backend\models\SubModelSeparator;
 use backend\models\Templates;
+use backend\models\TemplateSearch;
+use backend\models\TemplateSubModel;
+use backend\models\TemplateSeparator;
 use common\models\User;
 use Throwable;
 use Yii;
@@ -59,12 +62,12 @@ class TemplatesController extends Controller
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $project = Project::findOne($id_project);
 
-            $searchTemplates = new TemplateSearch();
-            $searchTemplates->id_project = $id_project;
-            $dataProvider = $searchTemplates->search(Yii::$app->request->queryParams);
+            $searchModel = new TemplateSearch();
+            $searchModel->id_project = $id_project;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
             return $this->render('index', [
-                'searchTemplates' => $searchTemplates,
+                'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
                 'project' => $project
             ]);
@@ -78,51 +81,130 @@ class TemplatesController extends Controller
      * @return mixed
      * @throws NotAcceptableHttpException
      */
+    /* public function actionCreate($id_project)
+     {
+         $model= new Templates();
+         $project = Project::findOne($id_project);
+
+         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+
+             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
+             $separators = Separator::find()->where(['id_project'=> $id_project,'scope' => ["Componente"]])->all();
+
+             if (Yii::$app->request->post() ) {
+
+                 $posts = Yii::$app->request->post();
+
+                 $posts = array_reverse($posts);
+
+                 $order = count($posts) - 1;
+
+                 $id_submodel = "";
+
+                 foreach ($posts as $key => $value) {
+                     $key_val = explode('-',$key);
+
+                     if ($key_val[0] == "submodel") {
+                         $submodel = SubModel::findOne($value);
+                         $submodel->order = $order;
+                         $submodel->id_template = $model->id_template;
+                         $submodel->save();
+                         $id_submodel = $submodel->id_sub_model;
+
+                     } else if ($key_val[0] == "separator") {
+                         $submodel_separator = new SubModelSeparator();
+                         $submodel_separator->id_template = $model->id_template;
+                         $submodel_separator->id_separator = $value;
+                         $submodel_separator->id_sub_model = $id_submodel;
+                         $submodel_separator->order = $order;
+                         $submodel_separator->save();
+                     }
+                     $order--;
+                 }
+                 $model->save();
+                 return $this->redirect(['index', 'id_project' => $id_project]);
+             }
+
+             //iCheck
+             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+             //Sortable
+             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+
+             return $this->render('create', array( 'model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators ));
+         } else
+             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
+
+     }*/
     public function actionCreate($id_project)
     {
-        $model= new Templates();
-        $project = Project::findOne($id_project);
-
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+            $model = new Templates();
+
+            $project = Project::findOne($id_project);
 
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
-            $separators = Separator::find()->where(['id_project'=> $id_project,'scope' => ["Componente"]])->all();
+            $separators = Separator::find()->where(['id_project' => $id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
 
-            if (Yii::$app->request->post() && $model->save()) {
+            if ($model->load(Yii::$app->request->post())) {
+
+                $model->save();
+
                 $posts = Yii::$app->request->post();
 
-                $posts = array_reverse($posts);
 
-                $order = count($posts) - 1;
-
-                $id_submodel = "";
-
+                $j = 1;
+                $order = 0;
                 foreach ($posts as $key => $value) {
-                    $key_val = explode('-',$key);
 
-                    if ($key_val[0] == "submodel") {
-                        $submodel = SubModel::findOne($value);
-                        $submodel->order = $order;
-                        $submodel->id_template = $model->id_template;
-                        $submodel->save();
-                        $id_submodel = $submodel->id_sub_model;
+                    $submodel_id = "";
 
-                    } else if ($key_val[0] == "separator") {
-                        $separator= Separator::findOne($value);
-                        $separator->id_template = $model->id_template;
-                        $separator-> save();
-                        $submodel_separator = new SubModelSeparator();
-                        $submodel_separator->id_separator = $value;
-                        $submodel_separator->id_sub_model = $id_submodel;
-                        $submodel_separator->order = $order;
-                        $submodel_separator->save();
+                    if (!is_array($value)){
+                        $submodel_id = strval($value);
                     }
-                    $order--;
+
+                    $separator_id = strval($j);
+
+                    if ($key == "submodel-".$submodel_id){
+
+                        $template_submodel = new TemplateSubModel();
+
+                        $template_submodel->id_template = $model->id_template;
+                        $template_submodel->id_sub_model = $value;
+                        $template_submodel->order = $order;
+
+                        $template_submodel->save();
+
+                        $order++;
+                    }
+                    if ($key == "separator-".$separator_id) {
+
+                        $template_separator= new TemplateSeparator();
+
+                        $template_separator->id_template = $model->id_template;
+                        $template_separator->id_separator = $value;
+                        $template_separator->order = $order;
+
+                        $submodel_id = strval($template_submodel->id_sub_model);
+                        $submodel = Yii::$app->request->post('submodel-'.$submodel_id);
+                        $template_separator->id_sub_model = $submodel;
+
+                        $template_separator->save();
+
+                        $j++;
+                        $order++;
+                    }
                 }
+
                 return $this->redirect(['index', 'id_project' => $id_project]);
             }
 
-            //iCheck
             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -134,12 +216,11 @@ class TemplatesController extends Controller
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
 
-            return $this->render('create', array( 'model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators ));
+            return $this->render('create', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
-
     /**
      * Updates an existing Templates model.
      * If update is successful, the browser will be redirected to the 'view' page.
