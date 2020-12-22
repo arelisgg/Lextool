@@ -93,6 +93,7 @@ AppAsset::register($this);
                             <li><a href=<?=Yii::$app->urlManager->baseUrl."/element_type/index"?> >Elementos lexicográficos</a></li>
                             <li><a href=<?=Yii::$app->urlManager->baseUrl."/element_sub_type/index"?> >Subelementos lexicográficos</a></li>
                             <li><a href=<?=Yii::$app->urlManager->baseUrl."/review_criteria/index"?> >Criterios de revisión</a></li>
+                            <li><a href=<?=Yii::$app->urlManager->baseUrl."/template_type/index"?> >Tipos de Plantillas</a></li>
                         </ul>
                     </li>
 
@@ -175,7 +176,7 @@ AppAsset::register($this);
                         <li><a id="separator" class="property" href=""><i class="fa fa-minus"></i> <span>Serparadores</span></a></li>
                         <li><a id="element" class="property" href=""><i class="fa fa-language"></i>Elementos lexicográficos</a></li>
                         <li><a id="sub_model" class="property" href=""><i class="fa fa-object-ungroup"></i> <span>Componentes lexicográficos</span></a></li>
-                        <li><a id="general_model" class="property" href=""><i class="fa fa-object-group"></i>Modelo de artículo</a></li>
+                        <li><a id="general_model" class="property" href=""><i class="fa fa-object-group"></i>Plantillas</a></li>
                     </ul>
                 </li>
                 <li class="treeview lemma-menu hidden">
@@ -188,6 +189,7 @@ AppAsset::register($this);
                     <ul class="treeview-menu">
                         <li><a id="lemma_ext_plan" class="admin hidden" href=""><i class="fa fa-calendar"></i> <span>Plan de extracción</span></a></li>
                         <li><a id="lemma_ext_task" class="ext-lemma hidden" href=""><i class="fa fa-pencil-square-o"></i>Extracción de lemas</a></li>
+                        <li><a id="elements_for_lemma_ext_task" class="admin hidden" href=""><i class="fa fa-pencil"></i> <span>Extracción de elementos</span></a></li>
                         <li><a id="lemma_rev_plan" class="admin hidden" href=""><i class="fa fa-calendar"></i> <span>Plan de revisión</span></a></li>
                         <li><a id="lemma_rev_task" class="rev-lemma hidden" href=""><i class="fa fa-eraser"></i>Revisión de lemas</a></li>
                         <li><a id="lemario" class="admin hidden" href=""><i class="fa fa-language"></i>Conformar lemario</a></li>

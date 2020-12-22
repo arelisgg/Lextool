@@ -9,6 +9,7 @@ use dosamigos\datepicker\DateRangePicker;
 use backend\models\Letter;
 use backend\models\Source;
 use backend\models\SemanticField;
+use backend\models\Templates;
 
 /* @var $this yii\web\View */
 /* @var $model backend\models\LemmaExtPlan */
@@ -41,6 +42,16 @@ use backend\models\SemanticField;
 
     <?= $form->field($model,'semantic_field')->widget(Select2::className(),[
         'data' => ArrayHelper::map(SemanticField::find()->orderBy('name')->all(),'id_semantic_field','name'),
+        'options' => ['placeholder' => 'Seleccione...',],
+        'pluginOptions' => [
+            'allowClear' => true,
+            'multiple' => true,
+        ],
+    ]);
+    ?>
+
+    <?= $form->field($model,'template')->widget(Select2::className(),[
+        'data' => ArrayHelper::map(Templates::find()->orderBy('name')->all(),'id_template','name'),
         'options' => ['placeholder' => 'Seleccione...',],
         'pluginOptions' => [
             'allowClear' => true,

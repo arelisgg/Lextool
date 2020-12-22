@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use backend\assets\AppAsset;
+use backend\models\LexArticleElement;
 use backend\models\Model;
 use backend\models\Source;
 use backend\models\SourceLetter;
@@ -128,6 +129,7 @@ class ProjectController extends Controller
      */
     public function actionCreate()
     {
+
         $model = new Project();
         $modelTeams = [new UserProject()];
         $modelSources = [new Source()];
@@ -166,6 +168,7 @@ class ProjectController extends Controller
 
             return $this->redirect(['view', 'id' => $model->id_project]);
         }
+
 
         $this->view->registerCssFile(Yii::$app->homeUrl.'css/project.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
         $this->view->registerJsFile(Yii::$app->homeUrl.'js/project.js',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);

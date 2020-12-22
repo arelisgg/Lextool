@@ -10,6 +10,7 @@ use backend\models\Project;
 use backend\models\Separator;
 use backend\models\SubModelElement;
 use backend\models\SubModelSeparator;
+use backend\models\TemplateElement;
 use backend\models\Templates;
 use backend\models\TemplateSearch;
 use backend\models\TemplateSubModel;
@@ -146,11 +147,11 @@ class TemplatesController extends Controller
     {
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $model = new Templates();
-
             $project = Project::findOne($id_project);
 
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
             $separators = Separator::find()->where(['id_project' => $id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
+            $elements = Element::find()->where(['id_project' => $id_project])->all();
 
             if ($model->load(Yii::$app->request->post())) {
 
@@ -164,25 +165,43 @@ class TemplatesController extends Controller
                 foreach ($posts as $key => $value) {
 
                     $submodel_id = "";
+                    $element_id ="";
 
                     if (!is_array($value)){
                         $submodel_id = strval($value);
+                        $element_id =strval($value);
                     }
 
                     $separator_id = strval($j);
 
                     if ($key == "submodel-".$submodel_id){
-
+                        $submodel_n = new SubModel();
                         $template_submodel = new TemplateSubModel();
 
                         $template_submodel->id_template = $model->id_template;
                         $template_submodel->id_sub_model = $value;
                         $template_submodel->order = $order;
-
+                        $submodel_n = SubModel::findOne($value);
+                        $submodel_n->order =$order;
+                        $submodel_n->id_template = $model->id_template;
+                        $submodel_n-> save();
                         $template_submodel->save();
 
                         $order++;
                     }
+                    if ($key == "element-".$element_id){
+
+                        $template_element = new TemplateElement();
+
+                        $template_element->id_template = $model->id_template;
+                        $template_element->id_element = $value;
+                        $template_element->order = $order;
+
+                        $template_element->save();
+
+                        $order++;
+                    }
+
                     if ($key == "separator-".$separator_id) {
 
                         $template_separator= new TemplateSeparator();
@@ -212,9 +231,15 @@ class TemplatesController extends Controller
             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
+
+            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+
             //Sortable
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
 
             return $this->render('create', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators));
         } else
@@ -229,7 +254,7 @@ class TemplatesController extends Controller
      * @throws Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionUpdate($id_project, $id_template)
+    public function actionUpdate($id_project)
     {
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $project = Project::findOne($id_project);
@@ -287,7 +312,7 @@ class TemplatesController extends Controller
                     $order--;
                 }
 
-                $lex_articles = LexArticle::find()
+                               $lex_articles = LexArticle::find()
                     ->innerJoin('lemma','lemma.id_lemma = lex_article.id_lemma')
                     ->where(['id_project' => $id_project])->all();
                 foreach ($lex_articles as $lex_article) {

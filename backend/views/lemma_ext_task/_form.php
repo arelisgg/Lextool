@@ -23,17 +23,7 @@ use yii\widgets\ActiveForm;
             <?= $form->field($model, 'extracted_lemma')->textInput(['required' => true]) ?>
             <?= $form->field($model, 'original_lemma')->textInput(['required' => true]) ?>
 
-            <label class="control-label" for="elements">
-                Elemento lexicográfico:
-            </label>
-            <select class="form-control margin-bottom-20" id="elements" name="substructure" required>
-                <option value="<?= $model->substructure ?>"><?= $model->substructure ?></option>
-                <?php
-                foreach ($elements as $element) {
-                    echo '<option id="'.$element->id_element_type.'" value="'.$element->name.'">'.$element->name.'</option>';
-                }
-                ?>
-            </select>
+
             <?= $form->field($model, 'original_text')->textarea(['rows' => 6,'required' => true]) ?>
 
             <div class="form-group">

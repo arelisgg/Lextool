@@ -24,6 +24,9 @@ use Yii;
  * @property bool $lemario
  * @property bool $homonym
  * @property int $id_lemma_ext_plan
+ * @property int $id_template
+ *
+ *
  *
  * @property LemmaExtPlan $lemmaExtPlan
  * @property Letter $letter
@@ -61,8 +64,8 @@ class Lemma extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_project', 'id_letter', 'id_source', 'id_user', 'id_lemma_ext_plan'], 'default', 'value' => null],
-            [['id_project', 'id_letter', 'id_source', 'id_user', 'id_lemma_ext_plan'], 'integer'],
+            [['id_project', 'id_letter', 'id_source', 'id_user', 'id_lemma_ext_plan', 'id_template'], 'default', 'value' => null],
+            [['id_project', 'id_letter', 'id_source', 'id_user', 'id_lemma_ext_plan', 'id_template'], 'integer'],
             [['extracted_lemma', 'original_lemma', 'structure', 'substructure', 'original_text', 'remark'], 'string'],
             [['agree', 'finished', 'lemario', 'homonym'], 'boolean'],
             [['id_lemma_ext_plan'], 'exist', 'skipOnError' => true, 'targetClass' => LemmaExtPlan::className(), 'targetAttribute' => ['id_lemma_ext_plan' => 'id_lemma_ext_plan']],
@@ -70,6 +73,8 @@ class Lemma extends \yii\db\ActiveRecord
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
             [['id_source'], 'exist', 'skipOnError' => true, 'targetClass' => Source::className(), 'targetAttribute' => ['id_source' => 'id_source']],
             [['id_user'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['id_user' => 'id_user']],
+            [['id_template'], 'exist', 'skipOnError' => true, 'targetClass' => Templates::className(), 'targetAttribute' => ['id_template' => 'id_template']],
+
         ];
     }
 
@@ -102,6 +107,7 @@ class Lemma extends \yii\db\ActiveRecord
             'lexArtReviewed' => 'Redacción aprobada',
             'extReviewed' => 'Extracción aprobada',
             'lemma' => 'Lema',
+            'id_template' => 'Id Template',
         ];
     }
 

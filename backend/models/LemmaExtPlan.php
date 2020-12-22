@@ -25,6 +25,8 @@ use common\models\User;
  * @property Letter[] $letters
  * @property LemmaExtPlanSemanticField[] $lemmaExtPlanSemanticFields
  * @property SemanticField[] $semanticFields
+ * @property LemmaExtPlanTemplate[] $lemmaExtPlanTemplates
+ * @property Templates[] $template
  * @property LemmaExtPlanSource[] $lemmaExtPlanSources
  * @property Source[] $sources
  * @property LemmaRevPlan[] $lemmaRevPlans
@@ -37,7 +39,7 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
     public $source;
     public $late_search;
     public $letters_name;
-
+    public $template;
     /**
      * {@inheritdoc}
      */
@@ -54,7 +56,7 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
         return [
             [['id_project', 'id_user'], 'default', 'value' => null],
             [['id_project', 'id_user'], 'integer'],
-            [['id_user', 'start_date', 'end_date', 'letter', 'source', 'finished'], 'required'],
+            [['id_user', 'start_date', 'end_date', 'letter', 'source', 'template', 'semantic_field', 'finished'], 'required'],
             [['finished'], 'boolean'],
             [['start_date', 'end_date'], 'safe'],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
@@ -72,6 +74,7 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
             'id_project' => 'Id Project',
             'id_user' => 'Usuario',
             'semantic_field' => 'Campos semánticos',
+            'template' => 'Plantillas',
             'finished' => 'Finalizado',
             'start_date' => 'Fecha de inicio',
             'end_date' => 'Fecha de fin',
@@ -143,6 +146,22 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+       public function getLemmaExtPlanTemplates()
+    {
+        return $this->hasMany(LemmaExtPlanTemplate::className(), ['id_ext_plan' => 'id_lemma_ext_plan']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplates()
+    {
+        return $this->hasMany(Templates::className(), ['id_template' => 'id_template'])->viaTable('lemma_ext_plan_template', ['id_ext_plan' => 'id_lemma_ext_plan']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getLemmaExtPlanSources()
     {
         return $this->hasMany(LemmaExtPlanSource::className(), ['id_ext_plan' => 'id_lemma_ext_plan']);
@@ -168,6 +187,12 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
     {
         foreach ($this->lemmaExtPlanSemanticFields as $semanticField) {
             $semanticField->delete();
+        }
+    }
+    public function deleteAllPlanTemplates()
+    {
+        foreach ($this->lemmaExtPlanTemplates as $template) {
+            $template->delete();
         }
     }
 
@@ -196,6 +221,18 @@ class LemmaExtPlan extends \yii\db\ActiveRecord
             }
         }
         return $semanticsName;
+    }
+    public function getTemplatesName()
+    {
+        $templatesName = "";
+        for ($i = 0 ; $i < count($this->templates); $i++){
+            if($i == 0)
+                $templatesName = $this->templates[$i]->name;
+            else{
+                $templatesName = $templatesName.', '.$this->templates[$i]->name;
+            }
+        }
+        return $templatesName;
     }
 
     public function getLettersName()

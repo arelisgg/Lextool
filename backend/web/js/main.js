@@ -76,6 +76,7 @@ $(document).ready(function () {
         $("#lemma_rev_task").attr('href', url+"/lemma_rev_task/plans?id_project="+id);
         $("#lemario").attr('href', url+"/lemma/index?id_project="+id);
 
+
         //Documentos
         $("#doc_ext_plan").attr('href', url+"/doc_ext_plan/index?id_project="+id);
         $("#doc_rev_plan").attr('href', url+"/doc_rev_plan/index?id_project="+id);

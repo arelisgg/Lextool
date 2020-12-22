@@ -3,10 +3,18 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use \backend\models\LemmaExtPlanTemplate;
+use \backend\models\Letter;
+use \backend\models\TemplateElement;
+use \backend\models\LemmaCandExt;
+use  \backend\models\ElementType;
 
 /* @var $this yii\web\View */
-/* @var $model backend\models\Letter */
+/* @var $model backend\models\Lemma */
+/* @var $modelLemmasCand backend\models\LemmaCandExt */
 /* @var $form yii\widgets\ActiveForm */
+
+
 ?>
 
 
@@ -20,21 +28,81 @@ use yii\widgets\ActiveForm;
             <?= $form->field($model, 'id_source')->hiddenInput(['value'=> $source->id_source])->label(false) ?>
             <?= $form->field($model, 'id_lemma_ext_plan')->hiddenInput(['value' => $ext_plan->id_lemma_ext_plan ])->label(false) ?>
             <?= $form->field($model, 'id_user')->hiddenInput(['value' => Yii::$app->user->id ])->label(false) ?>
+            <?php $varString = "Lema"?><?= Html::hiddenInput('substructure', $varString); ?>
 
-            <?= $form->field($model, 'extracted_lemma')->textInput(['required' => true]) ?>
-            <?= $form->field($model, 'original_lemma')->textInput(['required' => true]) ?>
 
-            <label class="control-label" for="elements">
-                Elemento lexicográfico:
-            </label>
-            <select class="form-control margin-bottom-20" id="elements" name="substructure" required>
-                <option value="<?= $model->substructure ?>"><?= $model->substructure ?></option>
-                <?php
-                foreach ($elements as $element) {
-                    echo '<option id="'.$element->id_element_type.'" value="'.$element->name.'">'.$element->name.'</option>';
-                }
-                ?>
-            </select>
+            <div class="row">
+                <div class="col-md-12 margin-bottom-20">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <?php
+                            $i=0; $estos;
+                            $parametro =14;
+                            $cambiarnombre[] = new ElementType();
+                            $template = TemplateElement::findAll(['id_template' => $parametro]);
+                            foreach ($template as $te):
+                                $elements = \backend\models\Element::findAll(['id_element' =>  $te->id_element]);
+                                foreach ($elements as $eel):
+                                    $element_type = \backend\models\ElementType::findAll(['id_element_type' => $eel->id_element_type]);
+                                    foreach ( $element_type as $temp){
+                                        $cambiarnombre[$i] = $temp;
+                                        $active="";
+                                        if ($i==0){$active="active";}
+                                        echo '<li class="'.$active.'" >
+                                           <a name="tab-'.$i.'" class="tab-clicked" href="#tab-'.$i.'" data-toggle="tab" >
+                                                '.$temp->name.'
+                                            </a>
+                                        </li> ';
+
+                                        $i++; $estos[$i]=$temp->id_element_type;
+                                    }endforeach;
+                            endforeach;
+                            ?>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="tab-0">
+                                <div class="box box-primary">
+                                    <div class="box-header with-border">
+                                        <h2 class="box-title"><i class="fa fa-language"></i> <?= $cambiarnombre[0]->name ?></h2>
+                                    </div>
+
+                                    <div class="box-body"  style="overflow-y: auto; padding: 0px;">
+                                                <?php
+                                                echo  $form->field($model, 'extracted_lemma')->textInput(['required' => true]),
+                                                $form->field($model, 'original_lemma')->textInput(['required' => true]),
+                                                $form->field($modelLemmasCand[0], "[{$modelLemmasCand[0]->description}]description")->textInput(['id'=>$cambiarnombre[0]->id_element_type]);  ?>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        <?php $r=0?>
+                        <?php foreach($cambiarnombre as $y => $caca ):
+                            if(!$r==0):
+                            $modelLemmasCand[$y] = new LemmaCandExt();
+                            ?>
+
+                            <div class="tab-pane fade" id="tab-<?= $r ?>">
+                                <div class="box box-primary">
+                                    <div class="box-header with-border">
+                                        <h2 class="box-title"><i class="fa fa-language"></i> <?= $caca->name ?></h2>
+                                    </div>
+
+                                    <div class="box-body" style="overflow-y: auto; padding: 0px;">
+                                        <?php
+                                        echo $form->field($modelLemmasCand[$y], "[{$y}]description")->textInput(['id'=>$caca->id_element_type]);;
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; $r++; endforeach;?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
             <input type="hidden" id="crop_x" name="x"/>
             <input type="hidden" id="crop_y" name="y"/>
@@ -83,3 +151,27 @@ use yii\widgets\ActiveForm;
         </div>
     </div>
 </div>
+
+<script>
+
+    function Ocultar(id){
+
+    hola = document.getElementsByTagName("h2");
+    hola.hide();
+        tab = document.getElementsByClassName("active");
+        tab.hide();
+
+
+// aki termina mi infladera, empieza copia y pega
+
+        const activeDiv = document.querySelector('.active');
+
+        activeDiv.classList.add('hidden');                // Add the hidden class
+        activeDiv.classList.remove('hidden');             // Remove the hidden class
+        activeDiv.classList.toggle('hidden');             // Switch between hidden true and false
+        activeDiv.classList.replace('active', 'warning');
+    }
+
+
+
+</script>

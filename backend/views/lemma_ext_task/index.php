@@ -86,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 Html::a('<span class="glyphicon glyphicon-plus"></span>',
                     '#',
-                    ['onclick'=>"loadSourcesLemma('".Url::to(['/lemma_ext_task/sources', 'id_lemma_ext_plan' => $ext_plan->id_lemma_ext_plan])."')",
+                    ['onclick'=>"loadSourcesLemma('".Url::to(['/lemma_ext_task/sources', 'id_ext_plan'=>$ext_plan->id_lemma_ext_plan, 'id_lemma_ext_plan' => $ext_plan->id_lemma_ext_plan])."')",
                         'class' => 'btn btn-success', 'title'=>'Agregar']). ' '.
                 Html::a('<i class="glyphicon glyphicon-repeat"></i>',
                     ['lemma_ext_task/index', 'id_ext_plan'=>$ext_plan->id_lemma_ext_plan],

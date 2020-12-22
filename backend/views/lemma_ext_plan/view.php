@@ -27,6 +27,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => $model->getSemanticsName(),
             ],
             [
+                'label'=>'Plantilla',
+                'value' => $model->getTemplatesName(),
+            ],
+            [
                 'label'=>'Letras',
                 'value' => $model->getLettersName(),
             ],

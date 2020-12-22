@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use backend\models\AuthAssignment;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use Yii;
 use common\models\User;
 use backend\models\UserSearch;
@@ -204,5 +205,44 @@ class UserController extends Controller
             $user->update(false);
         }
         return $enabled.', '. $notification;
+    }
+
+    public function importExcel(){
+         $inputFile = 'uploads/excel.xlsx';
+
+         try{
+
+             $inputFileType = \PHPExcel_IOFactory::identify($inputFile);
+             $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+             $objPHPExcel = $objReader->load($inputFile);
+
+             $sheet = $objPHPExcel->getSheet(0);
+             $highestRow = $sheet->getHighestRow();
+             $highestColumn = $sheet->getHighestColumn();
+
+             for($row = 1; $row <= $highestRow; $row++){
+                 $rowData= $sheet->rangeToArray('A'.$row . ':' . $highestColumn.$row, NULL, TRUE, FALSE);
+
+                 if($row=1){
+                     continue;
+                 }
+
+                 $user = new User();
+                 $user->username = $rowData[0][1];
+                 $user->password  = $rowData[0][2];
+                 $user->email  = $rowData[0][3];
+
+                 $user->save();
+
+                 print_r($user->getErrors());
+             } die('Okay');
+
+
+
+
+         }catch (Exception $e){
+          die ('Error');
+        };
+
     }
 }

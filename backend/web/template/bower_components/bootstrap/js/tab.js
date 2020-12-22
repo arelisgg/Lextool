@@ -70,6 +70,7 @@
       && ($active.length && $active.hasClass('fade') || !!container.find('> .fade').length)
 
     function next() {
+
       $active
         .removeClass('active')
         .find('> .dropdown-menu > .active')

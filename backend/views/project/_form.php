@@ -333,8 +333,6 @@ use backend\models\Letter;
                                 </div>
                                 <?php DynamicFormWidget::end(); ?>
                             </div>
-
-
                         </div>
                     </div>
                 </div>

@@ -3,12 +3,17 @@
 namespace backend\controllers;
 
 use backend\assets\AppAsset;
+use backend\models\Model;
+use backend\models\Element;
 use backend\models\ElementType;
+use backend\models\LemmaCandExt;
 use backend\models\LemmaExtPlan;
+use backend\models\LemmaExtPlanTemplate;
 use backend\models\LemmaImage;
 use backend\models\Letter;
 use backend\models\Project;
 use backend\models\Source;
+use backend\models\Templates;
 use common\models\User;
 use Codeception\Util\FileSystem;
 use http\Exception;
@@ -25,11 +30,14 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\View;
 
+
 /**
  * Lemma_ext_taskController implements the CRUD actions for Lemma model.
  */
 class Lemma_ext_taskController extends Controller
 {
+
+
     /**
      * {@inheritdoc}
      */
@@ -58,6 +66,7 @@ class Lemma_ext_taskController extends Controller
         $searchModel = new LemmaSearch();
         $searchModel->id_lemma_ext_plan = $id_ext_plan;
 
+
         $ext_plan = LemmaExtPlan::findOne($id_ext_plan);
 
         $letters = $ext_plan->letters;
@@ -79,7 +88,8 @@ class Lemma_ext_taskController extends Controller
                 'ext_plan' => $ext_plan,
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
-                'project' => $project
+                'project' => $project,
+
             ]);
 //        }else
 //            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
@@ -129,22 +139,34 @@ class Lemma_ext_taskController extends Controller
         return $texto;
     }
 
+
+
+
     public function actionCreate()
     {
+
         $model = new Lemma();
+        $modelLemmasCand = [new LemmaCandExt()];
+
+
 
         if ($model->load(Yii::$app->request->post())){
             $id_source = $model->id_source;
             $id_letter = $model->id_letter;
             $id_project = $model->id_project;
+
         } else {
             $id_source = Yii::$app->request->post('id_source');
             $id_letter = Yii::$app->request->post('id_letter');
             $id_project = Yii::$app->request->post('id_project');
+
         }
+
+
         $source = Source::findOne(['id_source' => $id_source]);
         $letter = Letter::findOne(['id_letter' => $id_letter]);
         $project = Project::findOne(['id_project' => $id_project]);
+
 
 
         if (User::userCanExtractionLemma($project->id_project)) {
@@ -153,14 +175,15 @@ class Lemma_ext_taskController extends Controller
 
             $elements = ElementType::find()->all();
 
-            if ($model->load(Yii::$app->request->post())) {
 
+            if ($model->load(Yii::$app->request->post())) {
                 $id_lemma = Yii::$app->request->post('id_lemma');
                 $substructure = Yii::$app->request->post('substructure');
 
-                if ($id_lemma != null && $id_lemma != ""){
+                if ($id_lemma != null && $id_lemma != "") {
                     $model = $this->findModel($id_lemma);
                 }
+
 
                 $model->substructure = $substructure;
                 $model->agree = false;
@@ -168,16 +191,46 @@ class Lemma_ext_taskController extends Controller
                 $model->homonym = false;
                 $cadena = $this->quitar_tildes($model->extracted_lemma);
                 $letra = mb_substr($cadena, 0, 1, 'utf-8');
-                $modelLetter = Letter::find()->where("letter = upper('".$letra."')")->one();
+                $modelLetter = Letter::find()->where("letter = upper('" . $letra . "')")->one();
                 $model->id_letter = $modelLetter->id_letter;
 
                 $model->save();
 
+                //---------------------------------------------------------
+                $modelLemmasCand = Model::createMultiple(LemmaCandExt::classname(), $modelLemmasCand, 'id_lemma_cand_ext');
+                Model::loadMultiple($modelLemmasCand, Yii::$app->request->post());
+
+                $transaction = \Yii::$app->db->beginTransaction();
+                try {
+                    if ($flag = $model->save(false)) {
+
+                        foreach ($modelLemmasCand as $modelLemmasC) {
+                            $modelLemmasC->save();
+                            $modelLemmasC->id_lemma = $model->id_lemma;
+                            $modelLemmasC->number = 2;
+
+                            if ($modelLemmasC->validate())
+                                if (!($flag = $modelLemmasC->save(false))) {
+                                    $transaction->rollBack();
+                                    break;
+                                }
+                            $modelLemmasC->save();
+                        }
+                    }
+                    if ($flag) {
+                        $transaction->commit();
+                    }
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                }
+
+
+                //-------------------------------------------------------
 
                 $lemmas = Lemma::find()
                     ->andWhere(['id_project' => $id_project,])
-                    ->andFilterWhere(['ilike','extracted_lemma',$model->extracted_lemma])->all();
-                if(count($lemmas) > 1) {
+                    ->andFilterWhere(['ilike', 'extracted_lemma', $model->extracted_lemma])->all();
+                if (count($lemmas) > 1) {
                     foreach ($lemmas as $lemma) {
                         $lemma->homonym = true;
                         $lemma->save(false);
@@ -203,7 +256,7 @@ class Lemma_ext_taskController extends Controller
                             $y = Yii::$app->request->post('y');
                             $x = Yii::$app->request->post('x');
 
-                            $this->createPdfImage($w, $h, $y, $x,$url,$model);
+                            $this->createPdfImage($w, $h, $y, $x, $url, $model);
 
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -219,17 +272,18 @@ class Lemma_ext_taskController extends Controller
 
                             return $this->render('create', [
                                 'model' => $model,
+                                'modelLemmasCand' => $modelLemmasCand,
                                 'source' => $model->source,
                                 'ext_plan' => $model->lemmaExtPlan,
                                 'project' => $model->project,
                                 'letter' => $model->letter,
                                 'extension' => $extension,
-                                'elements' => $elements
+                                'elements' => $elements,
+
                             ]);
                         }
 
-                    }
-                    elseif ($ext == "jpg" ||
+                    } elseif ($ext == "jpg" ||
                         $ext == "jpeg" ||
                         $ext == "png") {
 
@@ -243,7 +297,7 @@ class Lemma_ext_taskController extends Controller
                             $y = Yii::$app->request->post('y');
                             $x = Yii::$app->request->post('x');
 
-                            $this->createImage($w, $h, $y, $x,$model);
+                            $this->createImage($w, $h, $y, $x, $model);
 
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -259,12 +313,15 @@ class Lemma_ext_taskController extends Controller
 
                             return $this->render('create', [
                                 'model' => $model,
+                                'modelLemmasCand' => $modelLemmasCand,
                                 'source' => $model->source,
                                 'ext_plan' => $model->lemmaExtPlan,
                                 'project' => $model->project,
                                 'letter' => $model->letter,
                                 'extension' => $extension,
-                                'elements' => $elements
+                                'elements' => $elements,
+
+
                             ]);
                         }
                     } elseif ($ext == "pdf" && $source->editable) {
@@ -287,43 +344,81 @@ class Lemma_ext_taskController extends Controller
 
                 return $this->render('create', [
                     'model' => $model,
+                    'modelLemmasCand' => $modelLemmasCand,
                     'source' => $model->source,
                     'ext_plan' => $model->lemmaExtPlan,
                     'project' => $model->project,
                     'letter' => $model->letter,
                     'extension' => $extension,
-                    'elements' => $elements
+                    'elements' => $elements,
+
+
                 ]);
 
             }
+        $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+        $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-            $extension = explode('.', $source->url);
+        $extension = explode('.', $source->url);
 
 
-            return $this->render('create', [
-                'model' => $model,
-                'source' => $source,
-                'ext_plan' => $ext_plan,
-                'project' => $project,
-                'letter' => $letter,
-                'extension' => $extension,
-                'elements' => $elements
-            ]);
+        return $this->render('create', [
+            'model' => $model,
+            'modelLemmasCand'=>  $modelLemmasCand,
+            'source' => $source,
+            'ext_plan' => $ext_plan,
+            'project' => $project,
+            'letter' => $letter,
+            'extension' => $extension,
+            'elements' => $elements,
 
-        }else
+        ]);
+    }else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
-
     }
+
+
+    private function createLemmasCand($model, $modelLemmasCands)
+    {
+        $modelLemmasCands = Model::createMultiple(LemmaCandExt::classname(), $modelLemmasCands, 'id_lemma_cand_ext');
+        Model::loadMultiple($modelLemmasCands, Yii::$app->request->post());
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            if ($flag = $model->save(false)) {
+
+                foreach ($modelLemmasCands as $modelLemmasCand) {
+                    $modelLemmasCand->save();
+                    $modelLemmasCand->id_project = $model->id_project;
+                    $modelLemmasCand->number = 1;
+                    if ($modelLemmasCand->validate())
+                        if (!($flag = $modelLemmasCand->save(false))) {
+                            $transaction->rollBack();
+                            break;
+                        }
+                        $modelLemmasCand->save();
+                }
+            }
+            if ($flag) {
+                $transaction->commit();
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+        }
+    }
+
+
+
+
+
+
 
     //Store
     private function createImage($w,$h,$y,$x,$model) {

@@ -41,7 +41,6 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="tab-content">
             <div class="tab-pane active">
                 <div class="row">
-
                     <div class="col-lg-3">
                         <div class="box box-primary">
                             <div class="box-header with-border">

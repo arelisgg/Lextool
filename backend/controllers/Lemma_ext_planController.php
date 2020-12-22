@@ -5,6 +5,7 @@ namespace backend\controllers;
 use backend\models\LemmaExtPlanLetter;
 use backend\models\LemmaExtPlanSemanticField;
 use backend\models\LemmaExtPlanSource;
+use backend\models\LemmaExtPlanTemplate;
 use backend\models\Project;
 use backend\models\SemanticField;
 use common\models\User;
@@ -93,6 +94,7 @@ class Lemma_ext_planController extends Controller
                     $this->createPlanLetter($model);
                     $this->createPlanSemantic($model);
                     $this->createPlanSource($model);
+                    $this->createPlanTemplate($model);
                     MailController::sendPlanNotification('plan de extracción de lemas', $model->user);
                     return "agregada";
                 } else
@@ -114,6 +116,16 @@ class Lemma_ext_planController extends Controller
                 $lemmaExtPlanSemanticField->id_lemma_ext_plan = $model->id_lemma_ext_plan;
                 $lemmaExtPlanSemanticField->id_semantic_field = $semantic_field;
                 $lemmaExtPlanSemanticField->save();
+            }
+    }
+
+    private function createPlanTemplate($model){
+        if (is_array($model->template))
+            foreach ($model->template as $template){
+                $lemmaExtPlanTemplate = new LemmaExtPlanTemplate();
+                $lemmaExtPlanTemplate->id_ext_plan = $model->id_lemma_ext_plan;
+                $lemmaExtPlanTemplate->id_template = $template;
+                $lemmaExtPlanTemplate->save();
             }
     }
 
@@ -164,6 +176,9 @@ class Lemma_ext_planController extends Controller
                     $this->createPlanSemantic($model);
                     $model->deleteAllPlanSource();
                     $this->createPlanSource($model);
+                    $model->deleteAllPlanTemplates();
+                    $this->createPlanTemplate($model);
+
                     return "editada";
                 } else
                     return "Error";

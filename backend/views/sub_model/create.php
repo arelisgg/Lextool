@@ -113,11 +113,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 </div>
             </div>
-
         </div>
         <div class="col-md-2">
             <div id="separators_section" class="row">
-                <!--Listado de Elementos-->
+                <!--Listado de separadores-->
                 <div class="col-md-12">
                     <div class="box box-primary">
                         <div class="box-header with-border">

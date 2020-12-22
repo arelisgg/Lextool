@@ -5,13 +5,17 @@ use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model backend\models\Lemma */
+/* @var $modelLemmasCand backend\models\LemmaCandExt */
+
+
 
 $this->title = 'Extraer lema candidato';
 
 //$this->params['breadcrumbs'][] = ['label' => $project->name , 'url' => ['project/view','id' => $project->id_project]];
 $this->params['breadcrumbs'][] = ['label' => 'Planes de extracción de lemas candidatos' , 'url' => ['lemma_ext_task/plans','id_project' => $project->id_project]];
 $this->params['breadcrumbs'][] = ['label' => 'Lemas candidatos' , 'url' => ['lemma_ext_task/index','id_ext_plan' => $ext_plan->id_lemma_ext_plan]];
-$this->params['breadcrumbs'][] = $this->title
+$this->params['breadcrumbs'][] = $this->title;
+
 ?>
 
 <div id="id_project" class="hidden"><?=$project->id_project?></div>
@@ -40,31 +44,40 @@ $this->params['breadcrumbs'][] = $this->title
                     if ($ext == "pdf" && !$source->editable){
                         echo $this->render('_form-pdf', [
                             'model' => $model,
+                            'modelLemmasCand'=> $modelLemmasCand,
                             'source' => $source,
                             'ext_plan' => $ext_plan,
                             'letter' => $letter,
                             'project' => $project,
-                            'elements' => $elements
+                            'elements' => $elements,
+
+
                         ]);
                     }elseif ($ext == "jpg" ||
                         $ext == "jpeg" ||
                         $ext == "png") {
                         echo $this->render('_form-image', [
                             'model' => $model,
+                            'modelLemmasCand'=> $modelLemmasCand,
                             'source' => $source,
                             'ext_plan' => $ext_plan,
                             'letter' => $letter,
                             'project' => $project,
-                            'elements' => $elements
+                            'elements' => $elements,
+
+
                         ]);
                     }elseif($ext == "pdf" && $source->editable) {
                         echo $this->render('_form', [
                             'model' => $model,
+                            'modelLemmasCand'=> $modelLemmasCand,
                             'source' => $source,
                             'ext_plan' => $ext_plan,
                             'letter' => $letter,
                             'project' => $project,
-                            'elements' => $elements
+                            'elements' => $elements,
+
+
                         ]);
                     }
                 }
