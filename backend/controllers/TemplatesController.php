@@ -144,40 +144,28 @@ class TemplatesController extends Controller
 
      }*/
     public function actionCreate($id_project)
-    {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+    {if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
             $model = new Templates();
             $project = Project::findOne($id_project);
-
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
             $separators = Separator::find()->where(['id_project' => $id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
             $elements = Element::find()->where(['id_project' => $id_project])->all();
 
             if ($model->load(Yii::$app->request->post())) {
-
                 $model->save();
-
                 $posts = Yii::$app->request->post();
-
-
                 $j = 1;
                 $order = 0;
                 foreach ($posts as $key => $value) {
-
                     $submodel_id = "";
                     $element_id ="";
-
                     if (!is_array($value)){
                         $submodel_id = strval($value);
-                        $element_id =strval($value);
-                    }
-
-                    $separator_id = strval($j);
-
+                        $element_id =strval($value);}
+                        $separator_id = strval($j);
                     if ($key == "submodel-".$submodel_id){
                         $submodel_n = new SubModel();
                         $template_submodel = new TemplateSubModel();
-
                         $template_submodel->id_template = $model->id_template;
                         $template_submodel->id_sub_model = $value;
                         $template_submodel->order = $order;
@@ -186,41 +174,29 @@ class TemplatesController extends Controller
                         $submodel_n->id_template = $model->id_template;
                         $submodel_n-> save();
                         $template_submodel->save();
-
                         $order++;
                     }
                     if ($key == "element-".$element_id){
-
                         $template_element = new TemplateElement();
-
                         $template_element->id_template = $model->id_template;
                         $template_element->id_element = $value;
                         $template_element->order = $order;
-
                         $template_element->save();
-
                         $order++;
                     }
-
                     if ($key == "separator-".$separator_id) {
-
                         $template_separator= new TemplateSeparator();
-
                         $template_separator->id_template = $model->id_template;
                         $template_separator->id_separator = $value;
                         $template_separator->order = $order;
-
                         $submodel_id = strval($template_submodel->id_sub_model);
                         $submodel = Yii::$app->request->post('submodel-'.$submodel_id);
                         $template_separator->id_sub_model = $submodel;
-
                         $template_separator->save();
-
                         $j++;
                         $order++;
                     }
                 }
-
                 return $this->redirect(['index', 'id_project' => $id_project]);
             }
 

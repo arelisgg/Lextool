@@ -96,25 +96,17 @@ class ElementController extends Controller
             $model->id_project = $id_project;
             $model->font = "Arial";
             $model->visibility = 1;
-           
             $modelSubElements = [new SubElement()];
-			
-
             if ($model->load(Yii::$app->request->post())) {
                 $model->save();
                 $this->createSubElements($model,$modelSubElements);
-
                 return $this->redirect(['view', 'id' => $model->id_element]);
             } else {
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'js/pick-a-color/pick-a-color-1.2.3.min.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'css/element.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/pick-a-color/tinycolor-0.9.15.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/pick-a-color/pick-a-color-1.2.3.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/element/element.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-
                 return $this->render('create', [
                     'model' => $model,
                     'modelSubElements' => $modelSubElements,

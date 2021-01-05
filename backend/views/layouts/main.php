@@ -189,7 +189,6 @@ AppAsset::register($this);
                     <ul class="treeview-menu">
                         <li><a id="lemma_ext_plan" class="admin hidden" href=""><i class="fa fa-calendar"></i> <span>Plan de extracción</span></a></li>
                         <li><a id="lemma_ext_task" class="ext-lemma hidden" href=""><i class="fa fa-pencil-square-o"></i>Extracción de lemas</a></li>
-                        <li><a id="elements_for_lemma_ext_task" class="admin hidden" href=""><i class="fa fa-pencil"></i> <span>Extracción de elementos</span></a></li>
                         <li><a id="lemma_rev_plan" class="admin hidden" href=""><i class="fa fa-calendar"></i> <span>Plan de revisión</span></a></li>
                         <li><a id="lemma_rev_task" class="rev-lemma hidden" href=""><i class="fa fa-eraser"></i>Revisión de lemas</a></li>
                         <li><a id="lemario" class="admin hidden" href=""><i class="fa fa-language"></i>Conformar lemario</a></li>

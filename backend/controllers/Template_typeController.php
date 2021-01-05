@@ -78,6 +78,7 @@ class Template_typeController extends Controller
     public function actionCreate()
     {
         $model = new TemplateType();
+        $model->removed= 'f';
 
         if ($model->load(Yii::$app->request->post())) {
             if($model->save()){
