@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "33a3a7a1a6e7bcaf6bd261a1401121e4",
+    "content-hash": "89f90866ca3412af98ba8e26957c51c5",
     "packages": [
         {
             "name": "2amigos/yii2-date-picker-widget",
@@ -2148,6 +2148,55 @@
                 "source": "https://github.com/miloschuman/yii2-highcharts/tree/v7.1.3"
             },
             "time": "2019-08-22T15:33:56+00:00"
+        },
+        {
+            "name": "moonlandsoft/yii2-phpexcel",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/moonlandsoft/yii2-phpexcel.git",
+                "reference": "e0614787a41a9e7e1c9ab3b707ce54c256461d7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/moonlandsoft/yii2-phpexcel/zipball/e0614787a41a9e7e1c9ab3b707ce54c256461d7f",
+                "reference": "e0614787a41a9e7e1c9ab3b707ce54c256461d7f",
+                "shasum": ""
+            },
+            "require": {
+                "phpoffice/phpspreadsheet": "*",
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "moonland\\phpexcel\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Moh Khoirul Anam",
+                    "email": "moh.khoirul.anaam@gmail.com"
+                }
+            ],
+            "description": "Exporting PHP to Excel or Importing Excel to PHP",
+            "keywords": [
+                "excel",
+                "export",
+                "extension",
+                "import",
+                "xls",
+                "yii2"
+            ],
+            "support": {
+                "issues": "https://github.com/moonlandsoft/yii2-phpexcel/issues",
+                "source": "https://github.com/moonlandsoft/yii2-phpexcel/tree/master"
+            },
+            "time": "2018-10-27T03:52:57+00:00"
         },
         {
             "name": "mpdf/mpdf",

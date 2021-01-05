@@ -18,6 +18,8 @@
 		"php": ">=5.4.0",
         "yiisoft/yii2": "~2.0.6",
         "yiisoft/yii2-bootstrap": "~2.0.0",
+		"phpoffice/phpexcel": "^1.8",
+		"phpofiice/phpspreadsheet": "^1.8",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "kartik-v/yii2-mpdf": "dev-master",
         "kartik-v/bootstrap-fileinput": "dev-master",
@@ -39,7 +41,8 @@
         "kartik-v/yii2-widget-sidenav": "*",
         "noam148/yii2-image-manager": "*",
         "kartik-v/yii2-widget-fileinput": "dev-master",
-        "antkaz/yii2-vue": "~1.0"
+        "antkaz/yii2-vue": "~1.0",
+        "phpoffice/phpspreadsheet": "^1.12"
 		
     },
     "require-dev": {
