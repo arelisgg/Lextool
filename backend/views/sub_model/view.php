@@ -23,8 +23,6 @@ $this->params['breadcrumbs'][] = $this->title;
 </style>
 <div class="sub-model-view">
 
-
-
     <div class="box box-primary">
 
         <div class="box-header with-border">

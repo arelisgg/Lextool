@@ -58,7 +58,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         $ext == "png") {
                         echo $this->render('_form-image', [
                             'model' => $model,
-                            'modelLemmasCand'=> $modelLemmasCand,
                             'source' => $source,
                             'ext_plan' => $ext_plan,
                             'letter' => $letter,

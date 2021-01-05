@@ -79,6 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'toolbar'=>[
             Html::a('<i class="fa fa-check"></i> Finalizar tarea', '', [
                 "onclick"=>"finishForm()", 'class' => 'btn btn-primary', "title"=>"Finalizar tarea"]),
+
             '{export}',
             '{toggleData}',
 

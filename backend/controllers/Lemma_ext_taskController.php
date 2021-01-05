@@ -13,6 +13,7 @@ use backend\models\LemmaImage;
 use backend\models\Letter;
 use backend\models\Project;
 use backend\models\Source;
+use backend\models\TemplateElement;
 use backend\models\Templates;
 use common\models\User;
 use Codeception\Util\FileSystem;
@@ -29,6 +30,7 @@ use yii\web\NotAcceptableHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\View;
+use PhpOffice\PhpSpreadsheet\Reader;
 
 
 /**
@@ -87,6 +89,7 @@ class Lemma_ext_taskController extends Controller
                 'currentLetter' => $currentLetter,
                 'ext_plan' => $ext_plan,
                 'searchModel' => $searchModel,
+
                 'dataProvider' => $dataProvider,
                 'project' => $project,
 
@@ -105,6 +108,8 @@ class Lemma_ext_taskController extends Controller
     {
         $model = Lemma::findOne($id);
 
+        $modelLemmasCand = LemmaCandExt::find()->where(['id_lemma' => $model->id_lemma]);
+
         $ext_plan = LemmaExtPlan::findOne(['id_lemma_ext_plan' => $model->id_lemma_ext_plan]);
         $project = Project::findOne(['id_project' => $model->id_project]);
 
@@ -121,7 +126,7 @@ class Lemma_ext_taskController extends Controller
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/lightgallery.js/dist/js/lg-share.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_viewer.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            return $this->render('view', compact('model', 'ext_plan', 'project'));
+            return $this->render('view', compact('model', 'ext_plan', 'project','modelLemmasCand'));
         }else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
@@ -143,90 +148,62 @@ class Lemma_ext_taskController extends Controller
 
 
     public function actionCreate()
-    {
-
-        $model = new Lemma();
+    {   $model = new Lemma();
         $modelLemmasCand = [new LemmaCandExt()];
-
-
-
         if ($model->load(Yii::$app->request->post())){
             $id_source = $model->id_source;
             $id_letter = $model->id_letter;
             $id_project = $model->id_project;
-
-        } else {
+            } else {
             $id_source = Yii::$app->request->post('id_source');
             $id_letter = Yii::$app->request->post('id_letter');
             $id_project = Yii::$app->request->post('id_project');
+            }
+            $source = Source::findOne(['id_source' => $id_source]);
+            $letter = Letter::findOne(['id_letter' => $id_letter]);
+            $project = Project::findOne(['id_project' => $id_project]);
 
-        }
-
-
-        $source = Source::findOne(['id_source' => $id_source]);
-        $letter = Letter::findOne(['id_letter' => $id_letter]);
-        $project = Project::findOne(['id_project' => $id_project]);
-
-
-
-        if (User::userCanExtractionLemma($project->id_project)) {
+            if (User::userCanExtractionLemma($project->id_project)) {
             $id_ext_plan = Yii::$app->request->post('id_ext_plan');
             $ext_plan = LemmaExtPlan::findOne($id_ext_plan);
-
             $elements = ElementType::find()->all();
-
 
             if ($model->load(Yii::$app->request->post())) {
                 $id_lemma = Yii::$app->request->post('id_lemma');
                 $substructure = Yii::$app->request->post('substructure');
-
                 if ($id_lemma != null && $id_lemma != "") {
-                    $model = $this->findModel($id_lemma);
-                }
-
-
-                $model->substructure = $substructure;
-                $model->agree = false;
-                $model->finished = false;
-                $model->homonym = false;
-                $cadena = $this->quitar_tildes($model->extracted_lemma);
-                $letra = mb_substr($cadena, 0, 1, 'utf-8');
-                $modelLetter = Letter::find()->where("letter = upper('" . $letra . "')")->one();
-                $model->id_letter = $modelLetter->id_letter;
-
-                $model->save();
-
-                //---------------------------------------------------------
-                $modelLemmasCand = Model::createMultiple(LemmaCandExt::classname(), $modelLemmasCand, 'id_lemma_cand_ext');
-                Model::loadMultiple($modelLemmasCand, Yii::$app->request->post());
-
-                $transaction = \Yii::$app->db->beginTransaction();
+                    $model = $this->findModel($id_lemma);}
+                    $model->substructure = $substructure;
+                    $model->agree = false;
+                     $model->finished = false;
+                     $model->homonym = false;
+                     $cadena = $this->quitar_tildes($model->extracted_lemma);
+                     $letra = mb_substr($cadena, 0, 1, 'utf-8');
+                     $modelLetter = Letter::find()->where("letter = upper('" . $letra . "')")->one();
+                     $model->id_letter = $modelLetter->id_letter;
+                     $model->save();
+                     $modelLemmasCand = Model::createMultiple(LemmaCandExt::classname(), $modelLemmasCand, 'id_lemma_cand_ext');
+                     Model::loadMultiple($modelLemmasCand, Yii::$app->request->post());
+                     $transaction = \Yii::$app->db->beginTransaction();
                 try {
                     if ($flag = $model->save(false)) {
-
+                        $i=0;
                         foreach ($modelLemmasCand as $modelLemmasC) {
-                            $modelLemmasC->save();
                             $modelLemmasC->id_lemma = $model->id_lemma;
-                            $modelLemmasC->number = 2;
-
+                            $modelLemmasC->number = 1;
+                            $modelLemmasC->order = $i;
                             if ($modelLemmasC->validate())
                                 if (!($flag = $modelLemmasC->save(false))) {
                                     $transaction->rollBack();
-                                    break;
-                                }
-                            $modelLemmasC->save();
-                        }
-                    }
+                                    break;}
+                                    $i++;
+                            }}
                     if ($flag) {
                         $transaction->commit();
                     }
                 } catch (\Exception $e) {
                     $transaction->rollBack();
                 }
-
-
-                //-------------------------------------------------------
-
                 $lemmas = Lemma::find()
                     ->andWhere(['id_project' => $id_project,])
                     ->andFilterWhere(['ilike', 'extracted_lemma', $model->extracted_lemma])->all();
@@ -234,19 +211,14 @@ class Lemma_ext_taskController extends Controller
                     foreach ($lemmas as $lemma) {
                         $lemma->homonym = true;
                         $lemma->save(false);
-                    }
-                }
+                    }}
+                    $source = $model->source;
+                     $extension = explode('.', $model->source->url);
+                      $url = Yii::$app->request->post('img_url');
 
-                $source = $model->source;
-                $extension = explode('.', $model->source->url);
-                $url = Yii::$app->request->post('img_url');
-
-
-
-                foreach ($extension as $ext) {
-                    if ($ext == "pdf" && !$source->editable) {
-
-                        if (Yii::$app->request->post('x') != "" &&
+                      foreach ($extension as $ext) {
+                          if ($ext == "pdf" && !$source->editable) {
+                              if (Yii::$app->request->post('x') != "" &&
                             Yii::$app->request->post('y') != "" &&
                             Yii::$app->request->post('h') != "" &&
                             Yii::$app->request->post('w') != "") {
@@ -257,13 +229,10 @@ class Lemma_ext_taskController extends Controller
                             $x = Yii::$app->request->post('x');
 
                             $this->createPdfImage($w, $h, $y, $x, $url, $model);
-
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -279,11 +248,7 @@ class Lemma_ext_taskController extends Controller
                                 'letter' => $model->letter,
                                 'extension' => $extension,
                                 'elements' => $elements,
-
-                            ]);
-                        }
-
-                    } elseif ($ext == "jpg" ||
+                            ]);}} elseif ($ext == "jpg" ||
                         $ext == "jpeg" ||
                         $ext == "png") {
 
@@ -298,13 +263,10 @@ class Lemma_ext_taskController extends Controller
                             $x = Yii::$app->request->post('x');
 
                             $this->createImage($w, $h, $y, $x, $model);
-
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -313,29 +275,22 @@ class Lemma_ext_taskController extends Controller
 
                             return $this->render('create', [
                                 'model' => $model,
-                                'modelLemmasCand' => $modelLemmasCand,
                                 'source' => $model->source,
                                 'ext_plan' => $model->lemmaExtPlan,
                                 'project' => $model->project,
                                 'letter' => $model->letter,
                                 'extension' => $extension,
                                 'elements' => $elements,
-
-
                             ]);
                         }
                     } elseif ($ext == "pdf" && $source->editable) {
                         return $this->redirect(['index', 'id_ext_plan' => $model->id_lemma_ext_plan]);
                     }
                 }
-
-
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -351,23 +306,17 @@ class Lemma_ext_taskController extends Controller
                     'letter' => $model->letter,
                     'extension' => $extension,
                     'elements' => $elements,
-
-
                 ]);
-
-            }
+                }
         $this->view->registerCssFile(Yii::$app->homeUrl . 'css/image-crop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
         $this->view->registerCssFile(Yii::$app->homeUrl . 'js/jcrop/css/jquery.Jcrop.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
         $this->view->registerCssFile(Yii::$app->homeUrl . 'css/pdf-to-img', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
         $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-show-hide.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
         $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.color.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
         $this->view->registerJsFile(Yii::$app->homeUrl . 'js/jcrop/js/jquery.Jcrop.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
         $this->view->registerJsFile(Yii::$app->homeUrl . 'js/form-image-crop.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
         $extension = explode('.', $source->url);
-
 
         return $this->render('create', [
             'model' => $model,
@@ -378,11 +327,69 @@ class Lemma_ext_taskController extends Controller
             'letter' => $letter,
             'extension' => $extension,
             'elements' => $elements,
-
         ]);
     }else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
+
+    public function actionCargarExcel()
+    {       include_once('../../vendor/phpoffice/phpexcel/Classes/PHPExcel.php');
+            include_once('../../vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php');
+
+            $inputFile = 'uploads/excel1.xlsx';
+            $inputFileType = \PHPExcel_IOFactory::identify($inputFile);
+            $objReader =  \PHPExcel_IOFactory::createReader($inputFileType);
+            $objPHPExcel = $objReader->load($inputFile);
+            $sheet= $objPHPExcel->getSheet(0);
+            $highestRow = $sheet->getHighestRow();
+            $highestColumn = $sheet->getHighestColumn();
+            for ($row =1 ; $row <=$highestRow; $row++) {
+                    $rowData = $sheet->rangeToArray('A'.$row.':'.$highestColumn.$row, NULL,False,False);
+                    $lemmaexcel = new Lemma();
+                    $user = Yii::$app->user;
+                    $lemmaexcel->extracted_lemma = $sheet->getCellByColumnAndRow(3, $row);
+                    $lemmaexcel->original_lemma = $sheet->getCellByColumnAndRow(3, $row);
+                    $lemmaexcel->id_user = $user->id;
+                    $lemmaexcel->substructure = 'Lema';
+                    $lemmaexcel->agree = 'f';
+                    $lemmaexcel->finished = 'f';
+                    $lemmaexcel->lemario = 'f';
+                    $lemmaexcel->homonym = 'f';
+                    $lemmaexcel->id_letter = 14;
+
+                    if($lemmaexcel->save()){
+                        $e=0;
+                    for ($col=3; $col<=$highestColumn;$col++){
+                        $modelLemmasCand = new LemmaCandExt;
+                        $modelLemmasCand->id_lemma = $lemmaexcel->id_lemma;
+                        $modelLemmasCand->order = $e;
+                        $parametro =18; $i=0;
+                        $tipoElemento[] = new ElementType();
+                        $template = TemplateElement::findAll(['id_template' => $parametro]);
+                        foreach ($template as $te):
+                            $elements = Element::findAll(['id_element' =>  $te->id_element]);
+                            foreach ($elements as $eel):
+                                $element_type = \backend\models\ElementType::findAll(['id_element_type' => $eel->id_element_type]);
+                                foreach ( $element_type as $temp){
+                                    $tipoElemento[$i] = $temp;
+                                    $i++; $estos[$i]=$temp->id_element_type;
+                                }endforeach;
+                        endforeach;
+                        $modelLemmasCand->id_element_type = $tipoElemento[$e]->id_element_type;
+                        $modelLemmasCand->description = $rowData[$col][$row];
+                        $modelLemmasCand->save();
+                    }}}
+                $project = Project::findOne(['id_project' => 78]);
+                $ext_plan = LemmaExtPlan::findOne(['id_lemma_ext_plan'=>85]);
+                $extraction_plans = LemmaExtPlan::find()->where(['id_user' => $user->id , 'id_project' => 78 ,'finished' => false])->all();
+
+                return $this->render('plans', [
+                'project'=>$project,
+                'ext_plan' => $ext_plan,
+                'plans' => $extraction_plans,
+                ]);
+                }
+
 
 
     private function createLemmasCand($model, $modelLemmasCands)
