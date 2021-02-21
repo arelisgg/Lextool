@@ -46,30 +46,30 @@ $(document).ready(function () {
 
         this.addEventListener('click', function () {
 
-            var id = parseFloat(this.id);
+        var id = parseFloat(this.id);
 
-            var url = '/lextool/backend/web/general_model/details?id='+id;
+        var url = '/lextool/backend/web/general_model/details?id='+id;
 
-            $.ajax({
-                url: url,
-                type: 'get',
-                success: function (data) {
-                    $("#details-section").fadeIn(1000);
-                    $("#details").html(data);
-                }
-            });
+        $.ajax({
+            url: url,
+            type: 'get',
+            success: function (data) {
+                $("#details-section").fadeIn(1000);
+                $("#details").html(data);
+            }
         });
     });
+});
 
-    //Actualizar separadores
-    var i = 0;
-    var inc = 1;
-    var separators = $(".addedItem input[name^='separator']");
-    while (i < separators.length) {
-        separators[i].name = 'separator-'+inc;
-        i++;
-        inc++;
-    }
+//Actualizar separadores
+var i = 0;
+var inc = 1;
+var separators = $(".addedItem input[name^='separator']");
+while (i < separators.length) {
+    separators[i].name = 'separator-'+inc;
+    i++;
+    inc++;
+}
 });
 
 

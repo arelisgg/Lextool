@@ -68,8 +68,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'toolbar'=>[
             'options' => ['class' => 'pull-left'],
             ['content'=>
-                Html::a('<span class="glyphicon glyphicon-plus"></span>', '', ["onclick"=>"agregar()", 'class' => 'btn btn-success', "title"=>"Agregar"]). ' '.
-                Html::a('<i class="glyphicon glyphicon-repeat"></i>', ['index'], ['class'=>'btn btn-default', 'title'=>'Reiniciar']),
+                Html::a('<span class="glyphicon glyphicon-plus"></span>', '',
+                    ["onclick"=>"agregar()", 'class' => 'btn btn-success', "title"=>"Agregar"]). ' '.
+                Html::a('<i class="glyphicon glyphicon-repeat"></i>',
+                    ['index'], ['class'=>'btn btn-default', 'title'=>'Reiniciar']),
             ],
             '{toggleData}',
             '{export}',

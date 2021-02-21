@@ -215,7 +215,6 @@ class Sub_modelController extends Controller
             $separators = Separator::find()->where(['id_project' =>  $project->id_project, 'scope' => 'Elemento'])->orderBy('id_separator')->all();
 
             $submodel_elements =  $model->subModelElements;
-
             $submodel = [];
 
             foreach ($submodel_elements as $element) {

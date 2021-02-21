@@ -11,6 +11,7 @@ use Yii;
  * @property int $id_project
  * @property string $name
  * @property int $id_template_type
+ * @property string $ref_file
  *
  *
  *
@@ -25,7 +26,11 @@ use Yii;
  * @property Element[] $elements
  * @property SubModelSeparator[] $subModelSeparators
  * @property Separator[] $separators
+ * @property TemplateSeparator[] $templateSeparators
+ * @property TemplateSubModel[] $templateSubModels
+ * @property TemplateElement[] $templateElements
  */
+
 class Templates extends \yii\db\ActiveRecord
 {
     public $model_type;
@@ -49,6 +54,7 @@ class Templates extends \yii\db\ActiveRecord
             [['id_project'], 'default', 'value' => null],
             [['id_project'], 'integer'],
             [['name'],'string'],
+            [['ref_file'],'string'],
             //[['id_project', 'name'], 'unique', 'targetAttribute' => ['id_project', 'name']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
             [['id_template_type'], 'default', 'value' => null],
@@ -67,6 +73,7 @@ class Templates extends \yii\db\ActiveRecord
             'id_project' => 'Id Project',
             'name' => 'Nombre de la plantilla',
             'id_template_type' => 'Tipo de plantilla',
+            'ref_file' => 'Archivo de Referencia',
         ];
     }
 
@@ -88,9 +95,9 @@ class Templates extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getSubModelSeparators()
+    public function getTemplateSeparators()
     {
-        return $this->hasMany(SubModelSeparator::className(), ['id_sub_model' => 'id_sub_model']);
+        return $this->hasMany(TemplateSeparator::className(), ['id_template' => 'id_template']);
     }
 
     /**
@@ -98,8 +105,28 @@ class Templates extends \yii\db\ActiveRecord
      */
     public function getSeparators()
     {
-        return $this->hasMany(Separator::className(), ['id_separator' => 'id_separator'])->viaTable('sub_model_separator', ['id_sub_model' => 'id_sub_model']);
+        return $this->hasMany(Separator::className(), ['id_separator' => 'id_separator'])->viaTable('template_separator', ['id_template' => 'id_template']);
     }
 
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getElements()
+    {
+        return $this->hasMany(Element::className(), ['id_element' => 'id_element'])->viaTable('template_element', ['id_template' => 'id_template']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplateElements()
+    {
+        return $this->hasMany(TemplateElement::className(), ['id_template' => 'id_template']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplateSubModels()
+    {
+        return $this->hasMany(TemplateSubModel::className(), ['id_template' => 'id_template']);
+    }
 }

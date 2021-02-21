@@ -16,6 +16,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput() ?>
 
+    <?= $form->field($model, 'stage')->dropDownList(['Redaccion'=>'Redacción','Extraccion'=>'Extración'],['prompt'=>'-Seleccione una opción-']) ?>
+
     <div class="form-group" style="text-align: right;">
         <?= Html::submitButton($model->isNewRecord ? 'Guardar' : 'Editar', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>

@@ -236,7 +236,6 @@ class General_modelController extends Controller
 
 
             $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
             //Sortable

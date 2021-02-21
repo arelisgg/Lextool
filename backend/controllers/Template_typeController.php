@@ -78,12 +78,12 @@ class Template_typeController extends Controller
     public function actionCreate()
     {
         $model = new TemplateType();
-        $model->removed= 'f';
+        $model->removed= false ;
 
         if ($model->load(Yii::$app->request->post())) {
-            if($model->save()){
+            if($model->save())
                 return $model->name;
-            } else {
+             else {
                 return "Error";
             }
         } else {

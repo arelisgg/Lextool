@@ -10,6 +10,7 @@ use Yii;
  * @property int $id_template_type
  * @property string $name
  * @property bool $removed
+ * @property string $stage
  *
  * @property Project[] $projects
  */
@@ -31,6 +32,8 @@ class TemplateType extends \yii\db\ActiveRecord
         return [
             [['name'], 'string'],
             [['name'], 'required'],
+            [['stage'], 'string'],
+            [['stage'], 'required'],
             [['removed'], 'boolean'],
         ];
     }
@@ -44,6 +47,7 @@ class TemplateType extends \yii\db\ActiveRecord
             'id_template_type' => 'Id Template Type',
             'name' => 'Plantilla',
             'removed' => 'removed',
+            'stage' => 'Etapa',
         ];
     }
 

@@ -391,43 +391,7 @@ class Lemma_ext_taskController extends Controller
                 }
 
 
-
-    private function createLemmasCand($model, $modelLemmasCands)
-    {
-        $modelLemmasCands = Model::createMultiple(LemmaCandExt::classname(), $modelLemmasCands, 'id_lemma_cand_ext');
-        Model::loadMultiple($modelLemmasCands, Yii::$app->request->post());
-
-        $transaction = \Yii::$app->db->beginTransaction();
-        try {
-            if ($flag = $model->save(false)) {
-
-                foreach ($modelLemmasCands as $modelLemmasCand) {
-                    $modelLemmasCand->save();
-                    $modelLemmasCand->id_project = $model->id_project;
-                    $modelLemmasCand->number = 1;
-                    if ($modelLemmasCand->validate())
-                        if (!($flag = $modelLemmasCand->save(false))) {
-                            $transaction->rollBack();
-                            break;
-                        }
-                        $modelLemmasCand->save();
-                }
-            }
-            if ($flag) {
-                $transaction->commit();
-            }
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-        }
-    }
-
-
-
-
-
-
-
-    //Store
+   //Store
     private function createImage($w,$h,$y,$x,$model) {
         $lemma_image = new LemmaImage();
 

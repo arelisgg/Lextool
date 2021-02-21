@@ -20,6 +20,7 @@ class TemplateTypeSearch extends TemplateType
         return [
             [['id_template_type', 'removed'], 'integer'],
             [['name'], 'safe'],
+            [['stage'], 'safe'],
         ];
     }
 
@@ -70,6 +71,15 @@ class TemplateTypeSearch extends TemplateType
                 'name',
             ],
             'defaultOrder' => ['name'=>SORT_ASC]
+        ]);
+
+        $query->andFilterWhere(['ilike', 'stage', $this->stage]);
+
+        $dataProvider->setSort([
+            'attributes'=>[
+                'stage',
+            ],
+            'defaultOrder' => ['stage'=>SORT_ASC]
         ]);
 
         return $dataProvider;

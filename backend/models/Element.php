@@ -10,6 +10,7 @@ use Yii;
  * @property int $id_element
  * @property int $id_project
  * @property int $id_element_type
+ * @property int $id_template
  * @property string $property
  * @property bool $visibility
  * @property string $font
@@ -53,6 +54,9 @@ class Element extends \yii\db\ActiveRecord
             [['visibility'], 'boolean'],
             [['id_element_type'], 'exist', 'skipOnError' => true, 'targetClass' => ElementType::className(), 'targetAttribute' => ['id_element_type' => 'id_element_type']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
+            [['id_template'], 'default', 'value' => null],
+            [['id_template'], 'integer'],
+            [['id_template'], 'exist', 'skipOnError' => true, 'targetClass' => Templates::className(), 'targetAttribute' => ['id_template' => 'id_template']],
         ];
     }
 
@@ -63,6 +67,7 @@ class Element extends \yii\db\ActiveRecord
     {
         return [
             'id_element' => 'Elemento',
+            'id_template' => 'plantilla',
             'id_project' => 'Proyecto',
             'id_element_type' => 'Tipo de elemento',
             'element_name' => 'Tipo de elemento',
@@ -95,6 +100,13 @@ class Element extends \yii\db\ActiveRecord
         return $this->hasOne(Project::className(), ['id_project' => 'id_project']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplate()
+    {
+        return $this->hasOne(Templates::className(), ['id_template' => 'idtemplate']);
+    }
     /**
      * @return \yii\db\ActiveQuery
      */

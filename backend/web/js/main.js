@@ -354,6 +354,7 @@ function nombrarCrear(i){
             break;
         case '23':
             $('.modelo').text('Crear Tipo de plantilla');
+
     }
 }
 

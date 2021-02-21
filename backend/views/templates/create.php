@@ -8,6 +8,9 @@ use backend\models\TemplateType;
 use backend\models\SubModel;
 use \backend\models\Element;
 use \backend\models\ElementType;
+use yii\helpers\Html;
+use yii\helpers\Url;
+
 /* @var $this yii\web\View */
 /* @var $model backend\models\Templates */
 /* @var $form yii\widgets\ActiveForm */
@@ -18,7 +21,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Plantilla', 'url' => ['index','id_
 $this->params['breadcrumbs'][] = $this->title;
 $elements = new Element();
 $template_element = new \backend\models\TemplateElement();
-$elements = Element::find()->where(['id_project'=> $project->id_project ])->all();
+
+
 ?>
 <div id="id_project" class="hidden"><?=$project->id_project?></div>
 <div id="name_project" class="hidden"><?=$project->name?></div>
@@ -48,51 +52,22 @@ $elements = Element::find()->where(['id_project'=> $project->id_project ])->all(
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <p class="box-title"><i class="fa fa-list"></i> Datos de la plantilla</p>
-                        </div>
-                        <div class="box-body">
-                            <?= $form->field($model,'id_project')->hiddenInput(['value' => $project->id_project])->label(false) ?>
 
-                            <?= $form->field($model,'name')->textInput(); ?>
-
-                            <?= $form ->field($model, 'id_template_type')->dropDownList(ArrayHelper::map(TemplateType::find()->all(),'id_template_type', 'name'))?>
-
-                            <button class="btn btn-success margin-top-10 margin-bottom-30" type="submit"> Guardar</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
             <?php
             ActiveForm::end();
             ?>
-            <div id="details-section" class="row">
-                <div class="col-md-12">
-                    <!-- Descripción del Elemento-->
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h2 class="box-title"><i class="fa fa-info"></i> Detalles</h2>
-                        </div>
-                        <div class="box-body">
-                            <div  data-force="30" class="layer block" style="width: 100%;">
-                                <!-- <div class="layer title">Detalles</div>-->
-                                <ul id="details" class="block__list block__list_tags">
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-        <div class="col-md-2">
-            <div id="submodels_section" class="row">
-                <!--Listado de Submodelos-->
-                <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
-                    <div class="box box-primary">
+        <?php
+        $type=$model->id_template_type;
+        $t=TemplateType::findOne($type);
+        $stage=$t->stage;
+        if($stage=="Redaccion"):  ?>
+
+            <div class="col-md-3">
+             <div id="submodels_section" class="row">
+                    <!--Listado de Submodelos-->
+                 <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
+                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <h2 class="box-title"><i class="fa fa-list-alt"></i> Componentes</h2>
                         </div>
@@ -133,11 +108,41 @@ $elements = Element::find()->where(['id_project'=> $project->id_project ])->all(
                             </ul>
                         </div>
                     </div>
+                 </div>
+             </div>
+            </div>
+
+            <div class="col-md-3">
+                <div id="separators_section" class="row">
+                    <!--Listado de Elementos-->
+                    <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h2 class="box-title"><i class="fa fa-minus"></i> Separadores</h2>
+                            </div>
+                            <div class="box-body">
+                                <ul id="separators" class="block__list block__list_words">
+                                    <?php
+                                    foreach ($separators as $separator) {
+                                        if ($separator->scope == 'Componente') {
+                                            echo '<li id="' . $separator->id_separator . '" style="font-weight: bolder; background-color: #00a65a;"><span>' . $separator->representation . '</span> <span>(' . $separator->scope . ')</span>
+                                  <input type="hidden" name="separator-' . $separator->id_separator . '" value="' . $separator->id_separator . '">
+                                </li>';
+                                        }
+                                    }
+                                    ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="sidebar-form" class="col-md-2" >
+        <?php endif; ?>
+
+        <?php if($stage=="Extraccion"):  ?>
+
+        <div id="sidebar-form" class="col-md-3" >
             <div id="elements_section" class="row">
                 <!--Listado de Elementos-->
                 <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
@@ -148,6 +153,7 @@ $elements = Element::find()->where(['id_project'=> $project->id_project ])->all(
                         <div class="box-body">
                             <ul id="elements" class="block__list block__list_words">
                                 <?php
+                                $elements = Element::find()->where(['id_project' =>$project->id_project, 'id_template'=> null])->all();
                                 foreach ($elements as $element) {
                                     echo '<li id="'.$element->id_element.'"><span id="name" style="font-weight: bold">'.$element->elementType->name.'</span> <span id="property">('.$element->property.')</span>
                                   <input type="hidden" name="element-'.$element->id_element.'" value="'.$element->id_element.'">
@@ -160,33 +166,11 @@ $elements = Element::find()->where(['id_project'=> $project->id_project ])->all(
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
-        <div class="col-md-2">
-            <div id="separators_section" class="row">
-                <!--Listado de Elementos-->
-                <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h2 class="box-title"><i class="fa fa-minus"></i> Separadores</h2>
-                        </div>
-                        <div class="box-body">
-                            <ul id="separators" class="block__list block__list_words">
-                                <?php
-                                foreach ($separators as $separator) {
-                                    if ($separator->scope == 'Componente') {
-                                        echo '<li id="' . $separator->id_separator . '" style="font-weight: bolder; background-color: #00a65a;"><span>' . $separator->representation . '</span> <span>(' . $separator->scope . ')</span>
-                                  <input type="hidden" name="separator-' . $separator->id_separator . '" value="' . $separator->id_separator . '">
-                                </li>';
-                                    }
-                                }
-                                ?>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
-
+    <?= Html::submitButton('Guardar', ['class' => 'btn btn-success',
+        "onclick"=>"actionCreate('$model->id_project','$model->id_template', '".Url::to(['/templates/view',])."')"])
+    ?>
 </div>
 

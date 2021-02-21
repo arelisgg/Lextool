@@ -54,9 +54,8 @@ class SubModel extends \yii\db\ActiveRecord
             [['name'],'string'],
             //[['id_project', 'name'], 'unique', 'targetAttribute' => ['id_project', 'name']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
-            [['id_template', 'name'], 'required'],
-            [['id_template', 'order'], 'default', 'value' => null],
-            [['id_template', 'order'], 'integer'],
+            [['id_template'], 'default', 'value' => null],
+            [['id_template'], 'integer'],
             [['id_template'], 'exist', 'skipOnError' => true, 'targetClass' => Templates::className(), 'targetAttribute' => ['id_template' => 'id_template']],
             ];
     }
