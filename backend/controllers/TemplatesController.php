@@ -48,7 +48,7 @@ class TemplatesController extends Controller
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['get'],
+                    'delete' => ['post'],
                 ],
             ],
         ];
@@ -89,7 +89,9 @@ class TemplatesController extends Controller
             $type=$t->id_template_type;
             $model=$t;
 
-            if ($model->load(Yii::$app->request->post())) {
+
+            if ($posts = Yii::$app->request->post()) {
+                
                 $posts = Yii::$app->request->post();
                 $j = 1;
                 $order = 1;
@@ -138,27 +140,52 @@ class TemplatesController extends Controller
                         $order++;
                     }
                 }
-                return $this->redirect(['index', 'id_project' => $id_project]);
+                return $this->redirect(['view', 'id' => $model->id_template]);
             }
+            $type=$model->id_template_type;
+            $t=TemplateType::findOne($type);
+            $stage=$t->stage;
 
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            if ($stage=='Extraccion'){
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
 
-            //Sortable
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-            return $this->render('create', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators));
+
+                //Sortable
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+
+            }else{
+                if ($stage=='Redaccion'):
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+
+                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+
+                //Sortable
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                endif;
+             }
+
+            return $this->render('create', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators, 'elements'=>$elements));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
@@ -352,33 +379,45 @@ class TemplatesController extends Controller
     public function actionDelete($id)
     {
         $model = new Templates();
-        $model= Templates::findOne(['id_template'=>$id]);
+        $model= Templates::find()->where(['id_template'=>$id])->one();
         $project = $model->project;
+        $id_project=$project->id_project;
+        $type= $model->id_template_type;
+        $t= TemplateType::find()->where(['id_template_type'=>$type])->one();
+        $stage=$t->stage;
 
         if(User::userCanProjectAndRol($project->id_project, "Jefe de Proyecto")){
 
-            $template_submodels= TemplateSubModel::find()->where(['id_template' => $model->id_template])->all();
-            $template_elements = TemplateElement::find()->where(['id_template' => $model->id_template])->all();
-            $template_separators = TemplateSeparator::find()->where([ 'id_template' => $model->id_template])->all();
+            if ($stage=="Extraccion"):
+                $template_elements = TemplateElement::find()->where(['id_template' => $model->id_template])->all();
 
-            foreach ($template_elements as $te){
-                $e=Element::find()->where(['id_element'=>$te->id_element, 'id_template'=>$id]);
-                $e->delete();
-                $te->delete();
-            }
+                foreach ($template_elements as $te){
+                    $e=Element::find()->where(['id_element'=>$te->id_element, 'id_template'=>$id])->one();
+                    $e->id_template= null;
+                    $te->delete();
+                }
+            endif;
+
+            if ($stage=="Redaccion"):
+                $template_submodels= TemplateSubModel::find()->where(['id_template' => $model->id_template])->all();
+                $template_separators = TemplateSeparator::find()->where([ 'id_template' => $model->id_template])->all();
+
             foreach ($template_submodels as $tsm){
-                $sm=SubModel::find()->where(['id_sub_model'=>$tsm->id_sub_model, 'id_template'=>$id]);
-                $sm->delete();
+                $sm=SubModel::find()->where(['id_sub_model'=>$tsm->id_sub_model, 'id_template'=>$id])->one();
+                $sm->id_template= null;
                 $tsm->delete();
             }
+
             foreach ($template_separators as $ts){
                 $ts->delete();
             }
+            endif;
+
             $model->delete();
+
             return $this->redirect(['index', 'id_project' => $id_project]);
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
-
     }
 
     /**

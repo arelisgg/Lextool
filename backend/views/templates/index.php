@@ -35,14 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             ['class' => 'kartik\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',
-                'buttons' => [
-                    'delete' => function ($url,$model,$key) {
-                        return Html::a('<span class="glyphicon glyphicon-trash"></span>',
-                            '', [
-                                "onclick"=>"deleteTemplate('$model->id_template', '".Url::to(['/lextool-1.0/backend/web',])."')",
-                                "title"=>"Eliminar"]);
-                    },
-                ]
+
             ],
         ],
         'pjax' => true,
@@ -68,65 +61,5 @@ $this->params['breadcrumbs'][] = $this->title;
     ]); ?>
     <?php Pjax::end(); ?>
 </div>
-<script>
-    function actionDelete(id, url){
-        krajeeDialogWarning.confirm("¿Está seguro de eliminar esta plantilla?", function (result) {
-            if (result) {
-                $.ajax({
-                    url: url+'?id='+id,
-                    type: 'POST',
-                    success:function(data){
-                        if (data == "Error"){
-                            krajeeDialogError.alert("No se ha podido eliminar la plantilla porque ya ha sido asociada a algun plan.");
-                        } else {
-                            $.pjax.reload({container: '#template_pjax'});
-                            $(document).find('#modal').modal('hide');
-                            krajeeDialogSuccess.alert('La plantilla ha sido eliminada.');
-                        }
-                    },
-                    fail: function(){
-                        krajeeDialogError.alert("Ha ocurrido un error.");
-                    }
-                });
-            }
-        });
-    }
-    function deleteTemplate(id, url) {
 
-            krajeeDialogWarning.confirm("¿Está seguro de eliminar esta plantilla?", function (result) {
-                if (result) {
-                    $.ajax({
-                        url: url + '/templates/verify',
-                        type: 'Get',
-                        data: {id_template: id},
-                        success: function (data) {
-                            if (data.can_delete) {
-                                $.ajax({
-                                    url: url + '/templates/delete',
-                                    data: {id_template: id},
-                                    type: 'Get',
-                                })
-
-                            } else {
-                                let message = document.createElement('ul')
-
-                                let count = 1;
-
-                                for (let key in data.error_list) {
-                                    let li = document.createElement('li')
-                                    li.innerText = count + '-' + data.error_list[key]
-                                    message.appendChild(li)
-                                    count++
-                                }
-
-                                krajeeDialogError.alert(message);
-                            }
-                        }
-                    })
-                }
-            })
-
-    })
-
-</script>
 

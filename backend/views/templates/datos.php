@@ -45,7 +45,7 @@ $template_element = new \backend\models\TemplateElement();
 
                             <?= $form->field($model,'name')->textInput(); ?>
 
-                            <?= $form ->field($model, 'id_template_type')->dropDownList(ArrayHelper::map(TemplateType::find()->where(['removed'=>false])->all(),'id_template_type', 'name'),['prompt'=>'-Seleccione una opción-'])?>
+                            <?= $form ->field($model, 'id_template_type')->dropDownList(ArrayHelper::map(TemplateType::find()->where(['removed'=>false])->all(),'id_template_type', 'name','stage'),['prompt'=>'-Seleccione una opción-'])?>
 
                             <?= Html::submitButton('Siguiente', ['class' => 'btn btn-success',
                                "onclick"=>"actionCreate('$model->id_project','$model->id_template', '".Url::to(['/templates/create',])."')"])

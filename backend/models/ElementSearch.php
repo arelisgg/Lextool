@@ -19,7 +19,7 @@ class ElementSearch extends Element
         return [
             [['id_element', 'id_project', 'id_element_type', 'font_size'], 'integer'],
             [['property', 'font', 'font_weight', 'font_style', 'text_decoration', 'color', 'background', 'element_name', 'text_transform'], 'safe'],
-            [['visibility'], 'boolean'],
+            [['visibility','used'], 'boolean'],
         ];
     }
 
@@ -64,6 +64,7 @@ class ElementSearch extends Element
             'id_project' => $this->id_project,
             'id_element_type' => $this->id_element_type,
             'visibility' => $this->visibility,
+            'used'=>$this->used,
             'font_size' => $this->font_size,
         ]);
 
@@ -82,6 +83,7 @@ class ElementSearch extends Element
             'attributes'=>[
                 'property',
                 'visibility',
+                'used',
                 'element_name'=>[
                     'asc'=>['element_type.name'=>SORT_ASC],
                     'desc'=>['element_type.name'=>SORT_DESC],

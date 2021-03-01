@@ -54,8 +54,8 @@ class Sub_modelController extends Controller
     public function actionIndex($id_project)
     {
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
-            $project = Project::findOne($id_project);
 
+            $project = Project::findOne($id_project);
             $searchModel = new SubModelSearch();
             $searchModel->id_project = $id_project;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);

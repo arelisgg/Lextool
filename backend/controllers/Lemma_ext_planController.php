@@ -166,7 +166,7 @@ class Lemma_ext_planController extends Controller
             $model->letter = $model->letters;
             $model->source = $model->sources;
             $model->semantic_field = $model->semanticFields;
-
+            $model->template = $model->templates;
 
             if ($model->load(Yii::$app->request->post())) {
                 if($model->save()){

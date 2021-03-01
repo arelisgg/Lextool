@@ -156,6 +156,18 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filterInputOptions'=>['placeholder'=>''],
             ],
             [
+                'attribute'=>'used',
+                'format' => "boolean",
+                'width'=>'95px',
+                'value'=>'used',
+                'filterType'=>GridView::FILTER_SELECT2,
+                'filter'=>[true=>'Sí',false=>'No'],
+                'filterWidgetOptions'=>[
+                    'pluginOptions'=>['allowClear'=>true],
+                ],
+                'filterInputOptions'=>['placeholder'=>''],
+            ],
+            [
                 'class' => 'kartik\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',
                 'buttons' => [

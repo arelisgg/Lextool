@@ -10,6 +10,7 @@ use backend\models\Letter;
 use backend\models\Source;
 use backend\models\SemanticField;
 use backend\models\Templates;
+use  backend\models\TemplateType;
 
 /* @var $this yii\web\View */
 /* @var $model backend\models\LemmaExtPlan */
@@ -49,9 +50,22 @@ use backend\models\Templates;
         ],
     ]);
     ?>
+    <?php
+   $templates=Templates::find()->all();
+   $result[]= new Templates();
+   $i=0;
+   foreach ($templates as $temps):
+       $templateType = TemplateType::find()->where(['id_template_type'=> $temps->id_template_type])->one();
+        $stage = $templateType->stage;
+        if ($stage == "Extraccion"):
+        $result[$i]=$temps;
+         $i++;
+          endif;
+    endforeach;
+    ?>
 
     <?= $form->field($model,'template')->widget(Select2::className(),[
-        'data' => ArrayHelper::map(Templates::find()->orderBy('name')->all(),'id_template','name'),
+        'data' => ArrayHelper::map($result,'id_template','name'),
         'options' => ['placeholder' => 'Seleccione...',],
         'pluginOptions' => [
             'allowClear' => true,

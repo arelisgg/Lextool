@@ -41,8 +41,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     <p><strong>Campos semánticos:</strong> ' . $plan->getSemanticsName() . '</p>
                     <p><strong>Letras:</strong> ' . $plan->getLettersName() . '</p>
                     <p><strong>Usuario:</strong> ' . $plan->user->full_name . '</p>
+                    <p><strong>Plantilla:</strong> ' . $plan->getTemplatesName() . '</p>
                     <p style="color: #dd4b39;"><strong>Estado:</strong> Atrasado </p>
-                     <p><strong>Fecha inicio: </strong>' . $plan->start_date . '</p>
+                    <p><strong>Fecha inicio: </strong>' . $plan->start_date . '</p>
                     <p> <strong>Fecha fin: </strong> ' . $plan->end_date . '</p>
                     <a class="btn btn-danger" href="' . Url::to(['lemma_ext_task/index', 'id_ext_plan' => $plan->id_lemma_ext_plan]) . '">Continuar <i class="fa fa-arrow-circle-right"></i></a>
                     </div>
@@ -61,7 +62,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <p><strong>Letras:</strong> ' . $plan->getLettersName() . '</p>
                     <p><strong>Usuario:</strong> ' . $plan->user->full_name . '</p>
                     <p style="color: #00a65a;"><strong>Estado:</strong> En Tiempo </p>
-                     <p><strong>Fecha inicio: </strong>' . $plan->start_date . '</p>
+                    <p><strong>Fecha inicio: </strong>' . $plan->start_date . '</p>
                     <p> <strong>Fecha fin: </strong> ' . $plan->end_date . '</p>
                     <a class="btn btn-success" href="' . Url::to(['lemma_ext_task/index', 'id_ext_plan' => $plan->id_lemma_ext_plan]) . '">Continuar <i class="fa fa-arrow-circle-right"></i></a>
                     </div>

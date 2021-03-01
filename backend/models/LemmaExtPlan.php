@@ -23,6 +23,7 @@ use common\models\User;
  * @property User $user
  * @property LemmaExtPlanLetter[] $lemmaExtPlanLetters
  * @property Letter[] $letters
+ * @property Templates[] $templates
  * @property LemmaExtPlanSemanticField[] $lemmaExtPlanSemanticFields
  * @property SemanticField[] $semanticFields
  * @property LemmaExtPlanTemplate[] $lemmaExtPlanTemplates

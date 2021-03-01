@@ -21,6 +21,7 @@ use Yii;
  * @property string $color
  * @property string $background
  * @property string $text_transform
+ * @property bool $used
  *
  * @property ElementType $elementType
  * @property Project $project
@@ -49,15 +50,15 @@ class Element extends \yii\db\ActiveRecord
         return [
             [['id_project', 'id_element_type', 'font_size'], 'default', 'value' => null],
             [['id_project', 'id_element_type', 'font_size'], 'integer'],
-            [['id_element_type', 'property', 'visibility', 'font_size', 'font', 'font_weight', 'font_style', 'text_decoration', 'color', 'background', 'text_transform'], 'required'],
+            [['id_element_type', 'property', 'visibility', 'font_size', 'font', 'font_weight', 'font_style', 'text_decoration', 'color', 'background', 'text_transform','used'], 'required'],
             [['property', 'font', 'font_weight', 'font_style', 'text_decoration', 'color', 'background', 'text_transform'], 'string'],
-            [['visibility'], 'boolean'],
+            [['visibility','used'], 'boolean'],
+            [['used'], 'default', 'value' => false],
             [['id_element_type'], 'exist', 'skipOnError' => true, 'targetClass' => ElementType::className(), 'targetAttribute' => ['id_element_type' => 'id_element_type']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
             [['id_template'], 'default', 'value' => null],
             [['id_template'], 'integer'],
-            [['id_template'], 'exist', 'skipOnError' => true, 'targetClass' => Templates::className(), 'targetAttribute' => ['id_template' => 'id_template']],
-        ];
+            ];
     }
 
     /**
@@ -81,6 +82,7 @@ class Element extends \yii\db\ActiveRecord
             'color' => 'Color',
             'background' => 'Color de fondo',
             'text_transform' => 'Mayúscula',
+            'used' => 'En Uso',
         ];
     }
 

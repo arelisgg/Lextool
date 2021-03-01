@@ -47,6 +47,7 @@ class ElementController extends Controller
     public function actionIndex($id_project)
     {
         if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+
             $searchModel = new ElementSearch();
             $searchModel->id_project = $id_project;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -96,6 +97,7 @@ class ElementController extends Controller
             $model->id_project = $id_project;
             $model->font = "Arial";
             $model->visibility = 1;
+            $model->used = false;
             $modelSubElements = [new SubElement()];
             if ($model->load(Yii::$app->request->post())) {
                 $model->save();

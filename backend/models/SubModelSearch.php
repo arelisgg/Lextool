@@ -19,7 +19,7 @@ class SubModelSearch extends SubModel
         return [
             [['id_sub_model', 'id_project', 'order'], 'integer'],
             [['name'],'safe'],
-            [['repeat','required'], 'boolean'],
+            [['repeat','required','used'], 'boolean'],
         ];
     }
 
@@ -56,9 +56,7 @@ class SubModelSearch extends SubModel
             // $query->where('0=1');
             return $dataProvider;
         }
-        $query->joinWith('elements')
-            ->innerJoin('element_type', 'element_type.id_element_type = element.id_element_type');
-
+       
         if ($this->name != ''){
             $query->andWhere("sub_model.name ilike '%".$this->name."%' OR element_type.name ilike '%".$this->name."%'");
         }
@@ -69,6 +67,7 @@ class SubModelSearch extends SubModel
             'sub_model.id_project' => $this->id_project,
             'repeat' => $this->repeat,
             'required' => $this->required,
+            'used' => $this->used,
             'order' => $this->order,
         ]);
 
@@ -79,6 +78,7 @@ class SubModelSearch extends SubModel
                 'name',
                 'repeat',
                 'required',
+                'used',
             ],
         ]);
 

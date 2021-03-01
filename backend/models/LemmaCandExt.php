@@ -87,7 +87,4 @@ class LemmaCandExt extends \yii\db\ActiveRecord
     {
         return $this->hasOne(SubElement::className(), ['id_sub_element' => 'id_sub_element']);
     }
-
-
-
 }

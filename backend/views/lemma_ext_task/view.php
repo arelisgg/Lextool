@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use yii\widgets\DetailView;
 use \backend\models\ElementType;
 use \backend\models\LemmaCandExt;
+use \backend\models\Templates;
 
 /* @var $this yii\web\View */
 /* @var $model backend\models\Lemma */

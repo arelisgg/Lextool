@@ -15,6 +15,7 @@ use Yii;
  * @property bool $required
  * @property string $elementsName
  * @property int $id_template
+ *  @property bool $used
  *
  * @property ElementSeparator[] $elementSeparators
  * @property LexArticleElement[] $lexArticleElements
@@ -50,8 +51,9 @@ class SubModel extends \yii\db\ActiveRecord
             [['id_project', 'name'], 'required'],
             [['id_project', 'order'], 'default', 'value' => null],
             [['id_project', 'order'], 'integer'],
-            [['repeat', 'required'], 'boolean'],
+            [['repeat', 'required','used'], 'boolean'],
             [['name'],'string'],
+            [['used'], 'default', 'value' => false],
             //[['id_project', 'name'], 'unique', 'targetAttribute' => ['id_project', 'name']],
             [['id_project'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['id_project' => 'id_project']],
             [['id_template'], 'default', 'value' => null],
@@ -73,6 +75,7 @@ class SubModel extends \yii\db\ActiveRecord
             'order' => 'Orden',
             'required' => 'Requerido',
             'id_template' => 'id Template',
+            'used' => 'En Uso',
         ];
     }
 

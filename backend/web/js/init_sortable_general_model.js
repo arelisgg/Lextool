@@ -189,7 +189,7 @@ $(document).ready(function () {
             if (evt.from.id === 'submodels') {
                 var id = parseFloat(evt.item.id);
 
-                var url = '/lextool/backend/web/general_model/details?id=' + id;
+                var url = '/lextool/backend/web/templates/details?id=' + id;
 
                 $.ajax({
                     url: url,
