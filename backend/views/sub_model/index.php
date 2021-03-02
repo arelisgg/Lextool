@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use kartik\grid\GridView;
 use yii\widgets\Pjax;
+
 /* @var $this yii\web\View */
 /* @var $searchModel backend\models\SubModelSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -28,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [
                 'attribute'=>'name',
-                'value' =>  'elementsName',
+                'value' =>  'name',
             ],
             [
                 'attribute'=>'repeat',

@@ -33,6 +33,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\web\View;
+use yii\web\UploadedFile;
 
 /**
  * TemplatesController implements the CRUD actions for Templates model.
@@ -62,7 +63,7 @@ class TemplatesController extends Controller
      */
     public function actionIndex($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+        if (User::userCanProjectAndRol($id_project, "Jefe de Proyecto")) {
             $project = Project::findOne($id_project);
 
             $searchModel = new TemplateSearch();
@@ -78,44 +79,47 @@ class TemplatesController extends Controller
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
     }
 
-    public function actionCreate($id_project,$id)
+    public function actionCreate($id_project, $id)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
-            $t=Templates::findOne($id);
+        if (User::userCanProjectAndRol($id_project, "Jefe de Proyecto")) {
+            $t = Templates::findOne($id);
             $project = Project::findOne($id_project);
             $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
             $separators = Separator::find()->where(['id_project' => $id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
             $elements = Element::find()->where(['id_project' => $id_project])->all();
-            $type=$t->id_template_type;
-            $model=$t;
+            $type = $t->id_template_type;
+            $model = $t;
 
 
             if ($posts = Yii::$app->request->post()) {
-                
+
                 $posts = Yii::$app->request->post();
                 $j = 1;
                 $order = 1;
+                $n=null;
                 foreach ($posts as $key => $value) {
                     $submodel_id = "";
                     $element_id = "";
-                    if (!is_array($value)){
+                    if (!is_array($value)) {
                         $submodel_id = strval($value);
-                        $element_id =strval($value);}
-                        $separator_id = strval($j);
-                    if ($key == "submodel-".$submodel_id){
+                        $element_id = strval($value);
+                    }
+                    $separator_id = strval($j);
+                    if ($key == "submodel-" . $submodel_id) {
                         $submodel_n = new SubModel();
                         $template_submodel = new TemplateSubModel();
                         $template_submodel->id_template = $model->id_template;
                         $template_submodel->id_sub_model = $value;
                         $template_submodel->order = $order;
                         $submodel_n = SubModel::findOne($value);
-                        $submodel_n->order =$order;
+                        $submodel_n->order = $order;
+                        $submodel_n->used= true;
                         $submodel_n->id_template = $model->id_template;
-                        $submodel_n-> save();
-                        $template_submodel->save();
+                       if($submodel_n->save()){ $n++;}
+                        if($template_submodel->save()){$n++;}
                         $order++;
                     }
-                    if ($key == "element-".$element_id){
+                    if ($key == "element-" . $element_id) {
                         $element_n = new Element();
                         $template_element = new TemplateElement();
                         $template_element->id_template = $model->id_template;
@@ -123,30 +127,38 @@ class TemplatesController extends Controller
                         $template_element->order = $order;
                         $element_n = Element::findOne($value);
                         $element_n->id_template = $model->id_template;
-                        $element_n-> save();
-                        $template_element->save();
+                        $element_n->used=true;
+                        if($element_n->save()){$n++;}
+                        if($template_element->save()){$n++;}
                         $order++;
                     }
-                    if ($key == "separator-".$separator_id) {
-                        $template_separator= new TemplateSeparator();
+                    if ($key == "separator-" . $separator_id) {
+                        $template_separator = new TemplateSeparator();
                         $template_separator->id_template = $model->id_template;
                         $template_separator->id_separator = $value;
                         $template_separator->order = $order;
                         $submodel_id = strval($template_submodel->id_sub_model);
-                        $submodel = Yii::$app->request->post('submodel-'.$submodel_id);
+                        $submodel = Yii::$app->request->post('submodel-' . $submodel_id);
                         $template_separator->id_sub_model = $submodel;
                         $template_separator->save();
                         $j++;
                         $order++;
                     }
+
                 }
+                if ($n==0){
+                    Yii::$app->session->setFlash('error','La Plantilla debe contener al menos un elemento.');
+                    $model->delete();
+                    return $this->redirect(['datos','id_project' => $id_project]);
+                }
+
                 return $this->redirect(['view', 'id' => $model->id_template]);
             }
-            $type=$model->id_template_type;
-            $t=TemplateType::findOne($type);
-            $stage=$t->stage;
+            $type = $model->id_template_type;
+            $t = TemplateType::findOne($type);
+            $stage = $t->stage;
 
-            if ($stage=='Extraccion'){
+            if ($stage == 'Extraccion') {
                 $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -164,28 +176,28 @@ class TemplatesController extends Controller
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
                 $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
 
-            }else{
-                if ($stage=='Redaccion'):
-                $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            } else {
+                if ($stage == 'Redaccion'):
+                    $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
-                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-
-                $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
 
 
-                //Sortable
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
-                $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                    $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+
+
+                    //Sortable
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
+                    $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
                 endif;
-             }
+            }
 
-            return $this->render('create', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators, 'elements'=>$elements));
+            return $this->render('create', array('model' => $model, 'project' => $project, 'submodels' => $submodels, 'separators' => $separators, 'elements' => $elements));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
@@ -193,37 +205,33 @@ class TemplatesController extends Controller
 
     public function actionDatos($id_project)
     {
-        if(User::userCanProjectAndRol($id_project, "Jefe de Proyecto")){
+        if (User::userCanProjectAndRol($id_project, "Jefe de Proyecto")) {
             $model = new Templates();
             $project = Project::findOne($id_project);
 
-            if ($model->load(Yii::$app->request->post())) {
+
+
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+                $file = UploadedFile::getInstance($model, "ref_file");
+                if (!empty($file)) {
+                    $address = $model->id_template . ' - ' . $model->name . ' (Ref_file).' . $file->extension;
+                    $file->saveAs('uploads/templates/ref_file/' . $address);
+                    $model->ref_file = $address;
+                }
                 $model->save();
-                return $this->redirect(['create', 'id_project' => $id_project,'id' => $model->id_template]);
+                return $this->redirect(['create', 'id_project' => $id_project, 'id' => $model->id_template]);
             }
 
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/iCheck/icheck.min.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_icheck', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
+            $this->view->registerCssFile(Yii::$app->homeUrl.'css/project.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl.'js/project.js',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
 
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/general_model.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-
-            $this->view->registerCssFile(Yii::$app->homeUrl . 'css/submodel.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sub_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-
-
-            //Sortable
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/sortable/Sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable_general_model.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
-            $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
-
-            return $this->render('datos', array('model'=>$model ,'project'=>$project));
+            return $this->render('datos', array('model' => $model, 'project' => $project));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
+
     /**
      * Updates an existing Templates model.
      * If update is successful, the browser will be redirected to the 'view' page.
@@ -237,19 +245,21 @@ class TemplatesController extends Controller
     public function actionUpdate($id)
     {
         $model = new Templates();
-        $model= Templates::findOne(['id_template'=>$id]);
-        $project = $model->project;
+        $model = Templates::findOne(['id_template' => $id]);
+        $id_project = $model->id_project;
+        $project= Project::findOne(['id_project'=>$id_project]);
+        $n=null;
 
-        if(User::userCanProjectAndRol($project->id_project, "Jefe de Proyecto")){
+        if (User::userCanProjectAndRol($id_project, "Jefe de Proyecto")) {
 
-            $submodels = SubModel::find()->where(['id_project' => $project->id_project])->all();
-            $separators = Separator::find()->where(['id_project' => $project->id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
-            $elements = Element::find()->where(['id_project' => $project->id_project])->all();
+            $submodels = SubModel::find()->where(['id_project' => $id_project])->all();
+            $separators = Separator::find()->where(['id_project' => $id_project, 'scope' => 'Componente'])->orderBy('id_separator')->all();
+            $elements = Element::find()->where(['id_project' => $id_project])->all();
 
-            $template_elements =  $model->templateElements;
-            $element=[];
+            $template_elements = $model->templateElements;
+            $element = [];
 
-            $template_submodels =  $model->templateSubModels;
+            $template_submodels = $model->templateSubModels;
             $submodel = [];
 
 
@@ -257,41 +267,52 @@ class TemplatesController extends Controller
 
                 foreach ($template_submodels as $tsm) {
                     $ts = SubModel::findOne($tsm->id_sub_model);
-                    array_push($submodel,$ts);
+                    array_push($submodel, $ts);
 
-                    $template_separators = TemplateSeparator::find()->where(['id_sub_model'=> $ts->id_sub_model, 'id_template' => $id])->all();
+                    $template_separators = TemplateSeparator::find()->where(['id_sub_model' => $ts->id_sub_model, 'id_template' => $id])->all();
                     foreach ($template_separators as $separator) {
-                        if ($separator->id_separator != -1){
+                        if ($separator->id_separator != -1) {
                             $sep = Separator::findOne($separator->id_separator);
-                            array_push($submodel,$sep);
+                            array_push($submodel, $sep);
                         }
                     }
                 }
                 $orderer = array_merge_recursive($submodel);
-            }else{
+            } else {
                 foreach ($template_elements as $elem) {
                     $el = Element::findOne($elem->id_element);
-                    array_push($element,$el);
+                    array_push($element, $el);
                 }
                 $orderer = array_merge_recursive($element);
             }
 
-            if ($model->load(Yii::$app->request->post())) {
-                $model->save();
+            if ($posts = Yii::$app->request->post()) {
 
-                $template_submodels= TemplateSubModel::find()->where(['id_template' => $model->id_template])->all();
+
+                $template_submodels = TemplateSubModel::find()->where(['id_template' => $model->id_template])->all();
                 $template_elements = TemplateElement::find()->where(['id_template' => $model->id_template])->all();
                 foreach ($template_elements as $element) {
+                    $e=Element::find()->where(['id_element'=>$element->id_element, 'id_template'=>$id])->one();
+                    if (!empty($e)){
+                        $e->id_template= null;
+                        $e->used=false;
+                        $e->save();
+                    }
                     $element->delete();
                 }
                 foreach ($template_submodels as $subm) {
+                    $sm=SubModel::find()->where(['id_sub_model'=>$subm->id_sub_model, 'id_template'=>$id])->one();
+                    if (!empty($sm)) {
+                        $sm->id_template = null;
+                        $sm->used = false;
+                        $sm->save();
+                    }
                     $subm->delete();
                 }
-                $template_separators = TemplateSeparator::find()->where([ 'id_template' => $model->id_template])->all();
+                $template_separators = TemplateSeparator::find()->where(['id_template' => $model->id_template])->all();
                 foreach ($template_separators as $t_separator) {
                     $t_separator->delete();
                 }
-
 
 
                 $posts = Yii::$app->request->post();
@@ -299,46 +320,60 @@ class TemplatesController extends Controller
                 $order = 1;
                 foreach ($posts as $key => $value) {
                     $submodel_id = "";
-                    $element_id ="";
-                    if (!is_array($value)){
+                    $element_id = "";
+                    if (!is_array($value)) {
                         $submodel_id = strval($value);
-                        $element_id =strval($value);}
-                        $separator_id = strval($j);
-                    if ($key == "submodel-".$submodel_id){
+                        $element_id = strval($value);
+                    }
+                    $separator_id = strval($j);
+                    if ($key == "submodel-" . $submodel_id) {
                         $submodel_n = new SubModel();
                         $template_submodel = new TemplateSubModel();
                         $template_submodel->id_template = $model->id_template;
                         $template_submodel->id_sub_model = $value;
                         $template_submodel->order = $order;
                         $submodel_n = SubModel::findOne($value);
-                        $submodel_n->order =$order;
+                        $submodel_n->order = $order;
+                        $submodel_n->used= true;
                         $submodel_n->id_template = $model->id_template;
-                        $submodel_n-> save();
-                        $template_submodel->save();
+                        if($submodel_n->save()){ $n++;}
+                        if($template_submodel->save()){$n++;}
                         $order++;
+
                     }
-                    if ($key == "element-".$element_id){
+                    if ($key == "element-" . $element_id) {
+                        $element_n = new Element();
                         $template_element = new TemplateElement();
                         $template_element->id_template = $model->id_template;
                         $template_element->id_element = $value;
                         $template_element->order = $order;
-                        $template_element->save();
+                        $element_n = Element::findOne($value);
+                        $element_n->id_template = $model->id_template;
+                        $element_n->used=true;
+                        if($element_n->save()){ $n++;}
+                        if($template_element->save()){$n++;}
                         $order++;
                     }
-                    if ($key == "separator-".$separator_id) {
-                        $template_separator= new TemplateSeparator();
+                    if ($key == "separator-" . $separator_id) {
+                        $template_separator = new TemplateSeparator();
                         $template_separator->id_template = $model->id_template;
                         $template_separator->id_separator = $value;
                         $template_separator->order = $order;
                         $submodel_id = strval($template_submodel->id_sub_model);
-                        $submodel = Yii::$app->request->post('submodel-'.$submodel_id);
+                        $submodel = Yii::$app->request->post('submodel-' . $submodel_id);
                         $template_separator->id_sub_model = $submodel;
                         $template_separator->save();
                         $j++;
                         $order++;
                     }
                 }
-                return $this->redirect(['index', 'id_project' => $model->id_project]);
+
+                if ($n==0){
+                    Yii::$app->session->setFlash('error','La Plantilla debe contener al menos un elemento.');
+                   return $this->redirect(['updatedatos', 'id_template'=> $model->id_template]);
+                }
+
+                return $this->redirect(['view', 'id' => $id]);
             }
 
             $this->view->registerCssFile(Yii::$app->homeUrl . 'js/iCheck/square/blue.css', ['depends' => [AppAsset::className()], 'position' => View::POS_HEAD]);
@@ -359,10 +394,40 @@ class TemplatesController extends Controller
             $this->view->registerJsFile(Yii::$app->homeUrl . 'js/init_sortable.js', ['depends' => [AppAsset::className()], 'position' => View::POS_END]);
 
 
-            return $this->render('update', array('model'=>$model ,'project'=>$project, 'submodels'=> $submodels,'separators'=>$separators,'elements'=>$elements,'orderer'=>$orderer));
+            return $this->render('update', array('model' => $model, 'project' => $project, 'submodels' => $submodels, 'separators' => $separators, 'elements' => $elements, 'orderer' => $orderer));
         } else
             throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
+
+    }
+
+    public function actionUpdatedatos($id_template)
+
+    {   $model = Templates::find()->where(['id_template'=> $id_template])->one();
+        $id_project = $model->id_project ;
+
+        if (User::userCanProjectAndRol($id_project, "Jefe de Proyecto")) {
+
+
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                $file = UploadedFile::getInstance($model, "ref_file");
+                if (!empty($file)) {
+                    $address = $model->id_project.' - '. $model->name .' (Ref_file).'.$file->extension;
+                    $file->saveAs('uploads/templates/ref_file/' . $address);
+                    $model->ref_file = $address;
+                } else
+                    $model->ref_file = $model->oldAttributes['ref_file'];
+
+                $model->save(false);
+
+                return $this->redirect(['update', 'id_project' => $id_project, 'id' => $model->id_template]);
+            }
+            $this->view->registerCssFile(Yii::$app->homeUrl.'css/project.css',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+            $this->view->registerJsFile(Yii::$app->homeUrl.'js/project.js',['depends'=>[AppAsset::className()],'position'=>View::POS_HEAD]);
+
+            return $this->render('updatedatos', array('id_template' => $id_template, 'model'=>$model));
+        } else
+            throw new NotAcceptableHttpException('No tiene permitido ejecutar esta acción.');
 
     }
 
@@ -385,15 +450,24 @@ class TemplatesController extends Controller
         $type= $model->id_template_type;
         $t= TemplateType::find()->where(['id_template_type'=>$type])->one();
         $stage=$t->stage;
+        $tep= LemmaExtPlanTemplate::find()->where(['id_template' => $model->id_template])->all();
 
         if(User::userCanProjectAndRol($project->id_project, "Jefe de Proyecto")){
-
+            if(!empty($tep)){
+                Yii::$app->session->setFlash('error','La Plantilla no puede eliminarse porque tiene planes de extracción asociados.');
+                return $this->redirect(['index','id_project' => $id_project]);
+            }
             if ($stage=="Extraccion"):
                 $template_elements = TemplateElement::find()->where(['id_template' => $model->id_template])->all();
 
                 foreach ($template_elements as $te){
                     $e=Element::find()->where(['id_element'=>$te->id_element, 'id_template'=>$id])->one();
-                    $e->id_template= null;
+                    if (!empty($e)){
+                        $e->id_template= null;
+                        $e->used=false;
+                        $e->save();
+                    }
+
                     $te->delete();
                 }
             endif;
@@ -404,7 +478,11 @@ class TemplatesController extends Controller
 
             foreach ($template_submodels as $tsm){
                 $sm=SubModel::find()->where(['id_sub_model'=>$tsm->id_sub_model, 'id_template'=>$id])->one();
-                $sm->id_template= null;
+                if (!empty($sm)) {
+                    $sm->id_template = null;
+                    $sm->used = false;
+                    $sm->save();
+                }
                 $tsm->delete();
             }
 

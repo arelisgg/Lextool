@@ -2,7 +2,7 @@ $(document).ready(function () {
     let url = $("#url").get(0).innerText
     let id = $("#id_template").get(0).innerText
 
-    $("#delete_model").click(function () {
+    $("#delete_template").click(function () {
         krajeeDialogWarning.confirm("¿Está seguro de eliminar esta plantilla?", function (result) {
             if (result) {
                 $.ajax({

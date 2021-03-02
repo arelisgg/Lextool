@@ -28,7 +28,9 @@ use  \backend\models\ElementType;
             <?= $form->field($model, 'id_source')->hiddenInput(['value'=> $source->id_source])->label(false) ?>
             <?= $form->field($model, 'id_lemma_ext_plan')->hiddenInput(['value' => $ext_plan->id_lemma_ext_plan ])->label(false) ?>
             <?= $form->field($model, 'id_user')->hiddenInput(['value' => Yii::$app->user->id ])->label(false) ?>
-            <?php $varString = "Lema"?><?= Html::hiddenInput('substructure', $varString); ?>
+            <?php $varString = "Lema"?>
+
+            <?= Html::hiddenInput('substructure', $varString); ?>
 
 
             <div class="row">
@@ -37,10 +39,13 @@ use  \backend\models\ElementType;
                         <ul class="nav nav-tabs">
                             <?php
                             $i=0; $estos;
-                            $parametro =18;
+                            $ext_plan_id = $ext_plan->id_lemma_ext_plan;
+                            $plan = \backend\models\LemmaExtPlanTemplate::find()->where(['id_ext_plan'=>$ext_plan_id])->one();
+                            $template_id = \backend\models\Templates::find()->where(['id_template'=>$plan->id_template])->one();
+                            $parametro=$template_id->id_template;
                             $tipoElemento[] = new ElementType();
-                            $template = TemplateElement::findAll(['id_template' => $parametro]);
-                            foreach ($template as $te):
+                            $template_e = TemplateElement::findAll(['id_template' => $parametro]);
+                            foreach ($template_e as $te):
                                 $elements = \backend\models\Element::findAll(['id_element' =>  $te->id_element]);
                                 foreach ($elements as $eel):
                                     $element_type = \backend\models\ElementType::findAll(['id_element_type' => $eel->id_element_type]);
@@ -62,7 +67,7 @@ use  \backend\models\ElementType;
                         <div class="tab-content">
 
                         <?php $r=0?>
-                        <?php foreach($tipoElemento as $y => $caca ):
+                        <?php foreach($tipoElemento as $y => $var ):
 
                             $modelLemmasCand[$y] = new LemmaCandExt();
 
@@ -71,7 +76,7 @@ use  \backend\models\ElementType;
                             <div class="tab-pane fade <?php if($r == 0){echo 'in active';};?>" id="tab-<?= $r ?>">
                                 <div class="box box-primary">
                                     <div class="box-header with-border">
-                                        <h2 class="box-title"><i class="fa fa-language"></i> <?= $caca->name ?></h2>
+                                        <h2 class="box-title"><i class="fa fa-language"></i> <?= $var->name ?></h2>
                                     </div>
 
                                     <div class="box-body" style="overflow-y: auto; padding: 0px;">
@@ -81,8 +86,8 @@ use  \backend\models\ElementType;
                                             $form->field($model, 'original_lemma')->textInput(['required' => true]);
                                         }
                                         echo
-                                        $form->field($modelLemmasCand[$y], "[{$modelLemmasCand[$y]->id_element_type}]id_element_type")->hiddenInput(['value' => $caca->id_element_type])->label(false),
-                                        $form->field($modelLemmasCand[$y], "[{$y}]description")->textInput(['id'=>$caca->id_element_type])
+                                        $form->field($modelLemmasCand[$y], "[{$modelLemmasCand[$y]->id_element_type}]id_element_type")->hiddenInput(['value' => $var->id_element_type])->label(false),
+                                        $form->field($modelLemmasCand[$y], "[{$y}]description")->textInput(['id'=>$var->id_element_type])
                                             ;
                                         ?>
                                     </div>

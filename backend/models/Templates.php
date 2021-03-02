@@ -29,12 +29,15 @@ use Yii;
  * @property TemplateSeparator[] $templateSeparators
  * @property TemplateSubModel[] $templateSubModels
  * @property TemplateElement[] $templateElements
+ * @property TemplateType $templateType
  */
 
 class Templates extends \yii\db\ActiveRecord
 {
     public $model_type;
     public $element;
+    public $template_type;
+
 
     /**
      * {@inheritdoc}
@@ -50,7 +53,7 @@ class Templates extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_project', 'name'], 'required'],
+            [['id_project', 'name','id_template_type'], 'required'],
             [['id_project'], 'default', 'value' => null],
             [['id_project'], 'integer'],
             [['name'],'string'],
@@ -60,6 +63,18 @@ class Templates extends \yii\db\ActiveRecord
             [['id_template_type'], 'default', 'value' => null],
             [['id_template_type'], 'integer'],
             [['id_template_type'], 'exist', 'skipOnError' => true, 'targetClass' => TemplateType::className(), 'targetAttribute' => ['id_template_type' => 'id_template_type']],
+            [['ref_file'], 'file', 'on' => 'create',
+                'extensions' => 'ris',
+                'skipOnEmpty' => false,
+                'uploadRequired' => 'No has seleccionado ningún archivo', //Error
+                'maxSize' => 1024 * 1024 * 20, //10 MB
+                'tooBig' => 'El tamaño máximo permitido es 20 MB', //Error
+                'minSize' => 10, //10 Bytes
+                'tooSmall' => 'El tamaño mínimo permitido son 10 Bytes', //Error
+                'wrongExtension' => 'El archivo {file} no tiene una de las extensiones permitidas ( {extensions} )', //Error
+                'maxFiles' => 1,
+                'tooMany' => 'El máximo de archivos permitidos son {limit}', //Error
+            ],
         ];
     }
 
@@ -111,6 +126,14 @@ class Templates extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getTemplateType()
+    {
+        return $this->hasOne(TemplateType::className(), ['id_template_type' => 'id_template_type']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getElements()
     {
         return $this->hasMany(Element::className(), ['id_element' => 'id_element'])->viaTable('template_element', ['id_template' => 'id_template']);
@@ -128,5 +151,19 @@ class Templates extends \yii\db\ActiveRecord
     public function getTemplateSubModels()
     {
         return $this->hasMany(TemplateSubModel::className(), ['id_template' => 'id_template']);
+    }
+    public function getRefFileUrl()
+    {
+        $diag = $this->ref_file != "null" ?
+            Yii::$app->urlManager->baseUrl . '/uploads/templates/ref_file/' . $this->ref_file :
+            'No existe el fichero';
+        return $diag;
+    }
+    public function getTypeName()
+    {
+        if ($this->id_template_type != '')
+            return $this->templateType->name;
+        else
+            return "";
     }
 }

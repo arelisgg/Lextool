@@ -5,6 +5,7 @@
         </div>
         <div class="col-md-6">
             <button type="submit" id="extractLemma" class="btn btn-primary btn-block">Continuar</button>
+
         </div>
     </div>
     <div class="row">

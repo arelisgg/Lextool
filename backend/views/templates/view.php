@@ -4,16 +4,16 @@ use yii\helpers\Url;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model backend\models\SubModel */
+/* @var $model backend\models\Templates */
 
 $this->title = 'Ver Plantilla: '.$model->name;
 //$this->params['breadcrumbs'][] = ['label' => $project->name , 'url' => ['project/view','id' => $project->id_project]];
-$this->params['breadcrumbs'][] = ['label' => 'Plantillas', 'url' => ['index','id_project' => $project->id_project]];
+$this->params['breadcrumbs'][] = ['label' => 'Plantillas', 'url' => ['index','id_project' => $model->id_project]];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div id="id_project" class="hidden"><?=$project->id_project?></div>
-<div id="name_project" class="hidden"><?=$project->name?></div>
+<div id="id_project" class="hidden"><?=$model->id_project?></div>
+<div id="name_project" class="hidden"><?=$model->name?></div>
 <style>
     text {
         font-size: 18px !important;
@@ -27,13 +27,17 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="box-header with-border">
             <h2 class="box-title"><i class="fa fa-language"></i> <?= $this->title ?></h2>
             <p class="pull-right" style="margin: 0">
-                <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>',
-                    ['update', 'id' => $model->id_template],
-                    ['class' => 'btn btn-primary btn-sm', 'title' => 'Editar']) ?>
+                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>',
+                    Url::to(['/templates/updatedatos','id_template' => $model->id_template]),
+                    ['class' => 'btn btn-primary btn-sm', 'title' => 'Editar'])
 
-                <button id="delete_model" class="btn btn-danger btn-sm" title="Eliminar">
-                    <i class="glyphicon glyphicon-trash"></i>
-                </button>
+                ?>
+                <?= Html::button('<span class="glyphicon glyphicon-trash"></span>', [
+                    "onclick"=>"actionDelete('$model->id_template', '".Url::to(['/templates/delete',])."')",
+                    "title"=>"Eliminar",
+                    'class' => 'btn btn-danger btn-sm',
+                ]) ?>
+
             </p>
         </div>
 
@@ -43,15 +47,18 @@ $this->params['breadcrumbs'][] = $this->title;
                     <ul class="list-group">
                         <li class="list-group-item">
                             <h4 class="list-group-item-heading ">Proyecto</h4>
-                            <p class="list-group-item-text"><?= $project->name ?></p>
+                            <p class="list-group-item-text"><?php $project= \backend\models\Project::find()->where(['id_project'=> $model->id_project])->one(); echo $project->name;  ?></p>
                         </li>
                         <li class="list-group-item">
                             <h4 class="list-group-item-heading ">Nombre</h4>
                             <p class="list-group-item-text"><?= $model->name ?></p>
                         </li>
-
                         <li class="list-group-item">
-                            <h4 class="list-group-item-heading ">Estructura del componente</h4>
+                            <h4 class="list-group-item-heading ">Tipo de Plantilla</h4>
+                            <p class="list-group-item-text"><?php $type= \backend\models\TemplateType::find()->where(['id_template_type'=> $model->id_template_type])->one(); echo $type->name; ?></p>
+                        </li>
+                        <li class="list-group-item">
+                            <h4 class="list-group-item-heading ">Estructura de la Plantilla</h4>
 
                             <ul id="general" class="block__list block__list_tags">
                             <?php
@@ -188,8 +195,26 @@ $this->params['breadcrumbs'][] = $this->title;
                     .initialize();
             }
 
-        });
+        })
 
     });
-</script>
 
+    function actionDelete(id, url){
+        krajeeDialogWarning.confirm("¿Está seguro de eliminar este elemento?", function (result) {
+            if (result) {
+                $.ajax({
+                    url: url+'?id='+id,
+                    type: 'POST',
+                    success:function(data){
+                        if (data == "Error"){
+                            krajeeDialogError.alert("No se ha podido eliminar, ha ocurrido un error.");
+                        }
+                    },
+                    fail: function(){
+                        krajeeDialogError.alert("No se ha podido eliminar, ha ocurrido un error.");
+                    }
+                });
+            }
+        });
+    }
+</script>

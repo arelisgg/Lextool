@@ -26,12 +26,12 @@ $template_element = new \backend\models\TemplateElement();
 ?>
 <div id="id_project" class="hidden"><?=$project->id_project?></div>
 <div id="name_project" class="hidden"><?=$project->name?></div>
-<div class="sub-model-create">
 
+<div class="sub-model-create">
     <div class="row">
         <div  class="col-md-6">
             <?php
-            $form = ActiveForm::begin(['id' => 'general_model_form']);
+            $form = ActiveForm::begin(['id' => 'template_create_form']);
             ?>
             <div class="row">
                 <div class="col-md-12">
@@ -52,7 +52,11 @@ $template_element = new \backend\models\TemplateElement();
                     </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-success margin-top-10 margin-bottom-30" type="submit"> Guardar</button>
+                </div>
+            </div>
             <?php
             ActiveForm::end();
             ?>
@@ -61,55 +65,86 @@ $template_element = new \backend\models\TemplateElement();
         $type=$model->id_template_type;
         $t=TemplateType::findOne($type);
         $stage=$t->stage;
-        if($stage=="Redaccion"):  ?>
 
-            <div class="col-md-3">
-             <div id="submodels_section" class="row">
-                    <!--Listado de Submodelos-->
-                 <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
-                     <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h2 class="box-title"><i class="fa fa-list-alt"></i> Componentes</h2>
-                        </div>
-                        <div class="box-body">
-                            <ul id="submodels" class="block__list block__list_words">
-                                <?php
-                                $submodels = SubModel::find()->where(['id_project' =>$project->id_project, 'id_template'=> null])->all();
-                                foreach ($submodels as $submodel) {
-                                    if (!$submodel->repeat && $submodel->required) {
-                                        echo '<li class="only-required" id="'.$submodel->id_sub_model.'">
-                                                <span id="name" style="font-weight: bold">'.$submodel->name.' </span> 
-                                                ( <i class="fa fa-check"></i> )
-                                                <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
-                                                <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
-                                              </li>';
-                                    }elseif (!$submodel->repeat && !$submodel->required) {
-                                        echo '<li class="full" id="'.$submodel->id_sub_model.'"> 
-                                        <span id="name" style="font-weight: bold">'.$submodel->name.' </span>
-                                        <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
-                                       <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
-                                       </li>';
+        if($stage=="Extraccion"):  ?>
+
+            <div class="col-md-3" >
+                <div id="elements_section" class="row">
+                    <!--Listado de Elementos-->
+                    <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <p class="box-title"><i class="fa fa-tags"></i> Elementos:</p>
+                            </div>
+                            <div class="box-body">
+                                <ul id="submodels" class="block__list block__list_words"></ul>
+                                <ul id="separators" class="block__list block__list_words"></ul>
+                                <ul id="elements" class="block__list block__list_words">
+                                    <?php
+                                    $elements = Element::find()->where(['id_project' =>$project->id_project, 'id_template'=> null])->all();
+                                    foreach ($elements as $element) {
+                                        echo '<li id="'.$element->id_element.'"><span id="name" style="font-weight: bold">'.$element->elementType->name.'</span> <span id="property">('.$element->property.')</span>
+                                  <input type="hidden" name="element-'. $element->id_element.'" value="'.$element->id_element.'">
+                                </li>';
                                     }
-                                    elseif ($submodel->repeat && $submodel->required) {
-                                        echo '<li class="full" id="'.$submodel->id_sub_model.'"> 
-                                        <span id="name" style="font-weight: bold">'.$submodel->name.' </span> ( <i class="fa fa-check"></i>, <i class="fa fa-refresh"></i> )
-                                        <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
-                                       <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
-                                       </li>';
-                                    }elseif ($submodel->repeat && !$submodel->required) {
-                                        echo '<li class="only-repeat" id="'.$submodel->id_sub_model.'"> 
-                                                <span id="name" style="font-weight: bold">'.$submodel->name.'</span> ( <i class="fa fa-refresh"></i> )
-                                                <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
-                                                <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
-                                             </li>';
-                                    }
-                                }
-                                ?>
-                            </ul>
+                                    ?>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                 </div>
-             </div>
+                </div>
+            </div>
+
+
+        <?php endif; ?>
+
+        <?php if($stage=="Redaccion"):  ?>
+            <div class="col-md-3">
+                <div id="submodels_section" class="row">
+                    <!--Listado de Submodelos-->
+                    <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h2 class="box-title"> <i class="fa fa-list-alt"></i> Componentes</h2>
+                            </div>
+                            <div class="box-body">
+                                <ul id="submodels" class="block__list block__list_words">
+                                    <?php $submodels = SubModel::find()->where(['id_project' =>$project->id_project, 'id_template'=> null])->all();
+                                    foreach ($submodels as $submodel) {
+                                        if (!$submodel->repeat && $submodel->required) {
+                                            echo '<li class="only-required" id="'.$submodel->id_sub_model.'">
+                                                    <span id="name" style="font-weight: bold">'.$submodel->name.' </span> 
+                                                     ( <i class="fa fa-check"></i> )
+                                                     <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
+                                                       <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
+                                                        </li>';
+                                        }elseif (!$submodel->repeat && !$submodel->required) {
+                                            echo '<li class="full" id="'.$submodel->id_sub_model.'"> 
+                                                    <span id="name" style="font-weight: bold">'.$submodel->name.' </span>
+                                                     <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
+                                                        <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
+                                                  </li>';
+                                        }
+                                        elseif ($submodel->repeat && $submodel->required) {
+                                            echo '<li class="full" id="'.$submodel->id_sub_model.'"> 
+                                                  <span id="name" style="font-weight: bold">'.$submodel->name.' </span> ( <i class="fa fa-check"></i>, <i class="fa fa-refresh"></i> )
+                                                 <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
+                                                  <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
+                                                 </li>';
+                                        }elseif ($submodel->repeat && !$submodel->required) {
+                                            echo '<li class="only-repeat" id="'.$submodel->id_sub_model.'"> 
+                                                    <span id="name" style="font-weight: bold">'.$submodel->name.'</span> ( <i class="fa fa-refresh"></i> )
+                                                      <p style="margin-bottom: 0px"><small>'.$submodel->getOnlyElementsName().'</small></p>
+                                                      <input type="hidden" name="submodel-'.$submodel->id_sub_model.'" value="'.$submodel->id_sub_model.'">
+                                                    </li>';
+                                        }
+                                    }
+                                    ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-3">
@@ -139,38 +174,24 @@ $template_element = new \backend\models\TemplateElement();
             </div>
 
         <?php endif; ?>
-
-        <?php if($stage=="Extraccion"):  ?>
-
-        <div id="sidebar-form" class="col-md-3" >
-            <div id="elements_section" class="row">
-                <!--Listado de Elementos-->
-                <div class="col-md-12" style="padding-left: 8px; padding-right: 4px">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <p class="box-title"><i class="fa fa-tags"></i> Elementos:</p>
-                        </div>
-                        <div class="box-body">
-                            <ul id="elements" class="block__list block__list_words">
-                                <?php
-                                $elements = Element::find()->where(['id_project' =>$project->id_project, 'id_template'=> null])->all();
-                                foreach ($elements as $element) {
-                                    echo '<li id="'.$element->id_element.'"><span id="name" style="font-weight: bold">'.$element->elementType->name.'</span> <span id="property">('.$element->property.')</span>
-                                  <input type="hidden" name="element-'.$element->id_element.'" value="'.$element->id_element.'">
-                                </li>';
-                                }
-                                ?>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
     </div>
-    <?= Html::submitButton('Guardar', ['class' => 'btn btn-success',
-        "onclick"=>"actionCreate('$model->id_project','$model->id_template', '".Url::to(['/templates/view',])."')"])
-    ?>
 </div>
 
+<script>
+    $('form#template_create_form').on('beforeSubmit', function (e) {
+           let childs=$("#general").find('input') ;
+            let result = false;
+
+            if(childs.length >= 0 && !result)
+                result = true ;
+
+            if (result) {
+                krajeeDialogError.alert("Error.");
+                return false;
+            } else{
+                return true;
+            }
+
+    });
+
+</script>

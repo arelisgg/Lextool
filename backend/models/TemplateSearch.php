@@ -17,8 +17,9 @@ class TemplateSearch extends Templates
     public function rules()
     {
         return [
-            [['id_template', 'id_project'], 'integer'],
-            [['name'],'safe'],
+            [['id_template', 'id_project', 'id_template_type'], 'integer'],
+            [['name','template_type'],'safe'],
+
         ];
     }
 
@@ -50,6 +51,8 @@ class TemplateSearch extends Templates
 
         $this->load($params);
 
+
+
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -64,6 +67,7 @@ class TemplateSearch extends Templates
         $query->andFilterWhere([
             'id_template' => $this->id_template,
             'id_project' => $this->id_project,
+            'id_template_type' => $this->id_template_type,
         ]);
 
 
@@ -71,6 +75,10 @@ class TemplateSearch extends Templates
         $dataProvider->setSort([
             'attributes'=>[
                 'name',
+                'template_type'=>[
+                    'asc'=>['template_type.name'=>SORT_ASC],
+                    'desc'=>['template_type.name'=>SORT_DESC],
+                ],
             ],
         ]);
 

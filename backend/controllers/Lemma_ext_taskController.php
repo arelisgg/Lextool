@@ -248,9 +248,8 @@ class Lemma_ext_taskController extends Controller
                                 'letter' => $model->letter,
                                 'extension' => $extension,
                                 'elements' => $elements,
-                            ]);}} elseif ($ext == "jpg" ||
-                        $ext == "jpeg" ||
-                        $ext == "png") {
+                            ]);}}
+                            elseif ($ext == "jpg" || $ext == "jpeg" || $ext == "png") {
 
                         if (Yii::$app->request->post('x') != "" &&
                             Yii::$app->request->post('y') != "" &&

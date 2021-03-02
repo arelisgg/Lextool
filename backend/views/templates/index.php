@@ -31,10 +31,27 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'kartik\grid\SerialColumn'],
             'attribute'=>'name',
-
-
+            [
+                'attribute' => 'id_template_type',
+                'value' => 'templateType.name',
+                'filter'=> \yii\helpers\ArrayHelper::map(\backend\models\TemplateType::find()->asArray()->all(), 'id_template_type','name'),
+            ],
+            [
+                'attribute' => 'ref_file',
+                'format' => 'raw',
+                'value'=>function ($model, $index, $widget) {
+                    return $model->ref_file != 'null' ? '<a data-pjax=0 href="' . $model->getRefFileUrl() . '">Descargar fichero</a>' : $model->getRefFiletUrl();
+                }
+            ],
             ['class' => 'kartik\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',
+                'buttons'=>[
+                        'update'=> function($url,$model,$key){
+                                    return Html::a('<span class="glyphicon glyphicon-pencil"></span>',
+                                        Url::to(['/templates/updatedatos','id_template' => $model->id_template]),
+                                        ["title"=>"Modificar Plantilla"]);
+                        },
+                ],
 
             ],
         ],
@@ -61,5 +78,45 @@ $this->params['breadcrumbs'][] = $this->title;
     ]); ?>
     <?php Pjax::end(); ?>
 </div>
+<script>
+    $(document).ready(function () {
+        let url = $("#url").get(0).innerText
+        let id = $("#id_template").get(0).innerText
 
+        $("#delete_template").click(function () {
+            krajeeDialogWarning.confirm("¿Está seguro de eliminar esta plantilla?", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: url + '/templates/verify',
+                        type: 'Get',
+                        data: { id_template: id },
+                        success: function (data) {
+                            if (data.can_delete) {
+                                $.ajax({
+                                    url: url + '/templates/delete',
+                                    data: { id_template: id },
+                                    type: 'Get',
+                                })
+
+                            }else {
+                                let message = document.createElement('ul')
+
+                                let count = 1;
+
+                                for (let key in data.error_list) {
+                                    let li = document.createElement('li')
+                                    li.innerText = count + '-' + data.error_list[key]
+                                    message.appendChild(li)
+                                    count++
+                                }
+
+                                krajeeDialogError.alert(message);
+                            }
+                        }
+                    })
+                }
+            })
+        })
+    });
+</script>
 
